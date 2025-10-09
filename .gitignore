@@ -42,3 +42,4 @@ app-example
 /ios
 /android
 /.vs
+/utils/supabase.ts
