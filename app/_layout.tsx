@@ -19,13 +19,15 @@ const Theme = {
     ...MD3DarkTheme,
     colors: {
         ...MD3DarkTheme.colors,
-        primary: phillyColors.accent,
-        secondary: phillyColors.gold,
+        primary: phillyColors.navy,
+        onPrimary: phillyColors.gold,
+        secondary: phillyColors.midnight,
+        onSecondary: phillyColors.gold,
         background: phillyColors.navy,
-        surface: phillyColors.midnight,
-        surfaceVariant: phillyColors.midnight,
-        onSurface: phillyColors.gold,
-        onSurfaceVariant: phillyColors.darkGold,  // dark gold
+        surface: phillyColors.gold,
+        surfaceVariant: phillyColors.darkGold,
+        onSurface: phillyColors.midnight,
+        onSurfaceVariant: phillyColors.midnight,  // dark gold
     },
 };
 
@@ -36,15 +38,14 @@ export default function RootLayout() {
             <Stack
                 screenOptions={{
                     headerStyle: {
-                        backgroundColor: '#f4511e',
+                        backgroundColor: Theme.colors.secondary,
                     },
                     headerTintColor: '#fff',
                     headerTitleStyle: {
                         fontWeight: 'bold',
                     },
                 }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
-                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             </Stack>
             <StatusBar style="auto" />
         </PaperProvider>

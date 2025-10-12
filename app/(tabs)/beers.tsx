@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from 'react-native';
 import { supabase, searchLocalBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
-import { DataTable, Avatar, Card, IconButton, Button, SegmentedButtons } from 'react-native-paper';
+import { DataTable, Avatar, Card, IconButton, Button, SegmentedButtons, useTheme } from 'react-native-paper';
+
 export default function BeersScreen() {
     const [beers, setBeers] = useState([]);
     const [page, setPage] = useState<number>(0);
@@ -10,8 +11,13 @@ export default function BeersScreen() {
         numberOfItemsPerPageList[0]
     );
     const [beerView, setBeerView] = useState("table");
+    const beerViewTitles = ['Cards', 'Table'];
 
+    const handleBeerViewChange = (value: string) => {
+        setBeerView(value);
+    }
 
+    const theme = useTheme();
 
 
     const from = page * itemsPerPage;
@@ -30,46 +36,49 @@ export default function BeersScreen() {
 
     return (
         <ScrollView
-        className="flex-1 bg-philly-navy p-8"
-        contentContainerStyle={{ justifyContent: 'center' }}
+        className="flex-1 p-8"
+            contentContainerStyle={{ justifyContent: 'center' }}
+        style={{ backgroundColor: '#001F3F' }} 
     >
 
-            <Text className="text-philly-gold text-5xl">Beers</Text>
-
+            <Text className="text-5xl">Beers</Text>
             <SegmentedButtons
                 value={beerView}
-                onValueChange={setBeerView}
-                buttons={[
-                    {
-                        value: 'cards',
-                        label: 'Cards',
-                        checkedColor: '#FFB302',
-                        uncheckedColor: '#DB7F40'
+                onValueChange={handleBeerViewChange}
+                buttons={beerViewTitles.map((section) => ({
+                    value: section,
+                    label: section,
+                    style: {
+                        backgroundColor:
+                            beerView === section
+                                ? theme.colors.surface
+                                : theme.colors.surfaceVariant,
+                        borderColor: theme.colors.outline,
                     },
-                    {
-                        value: 'table',
-                        label: 'Table',
-                        checkedColor: '#FFB302',
-                        uncheckedColor: '#DB7F40'
+                    labelStyle: {
+                        color:
+                            beerView === section
+                                ? theme.colors.onSurface
+                                : theme.colors.onSurfaceVariant,
                     },
-                ]}
+                }))}
             />
             
            
-            <DataTable>
+            <DataTable  >
                 <DataTable.Header>
-                    <DataTable.Title><Text className="text-philly-gold">Beer</Text></DataTable.Title>
-                    <DataTable.Title numeric><Text className="text-philly-gold">Price</Text></DataTable.Title>
-                    <DataTable.Title numeric><Text className="text-philly-gold">Size(OZ)</Text></DataTable.Title>
-                    <DataTable.Title numeric><Text className="text-philly-gold">ABV</Text></DataTable.Title>
+                    <DataTable.Title><Text style={{ color: theme.colors.onPrimary}}> Beer</Text></DataTable.Title>
+                    <DataTable.Title numeric><Text style={{ color: theme.colors.onPrimary}}> Price</Text></DataTable.Title>
+                    <DataTable.Title numeric><Text style={{ color: theme.colors.onPrimary}}> Size(OZ)</Text></DataTable.Title>
+                    <DataTable.Title numeric><Text style={{ color: theme.colors.onPrimary}}> ABV</Text></DataTable.Title>
                 </DataTable.Header>
 
                 {beers.slice(from, to).map((beer) => (
                     <DataTable.Row key={beer.id}>
-                        <DataTable.Cell> <Text className="text-philly-gold">{beer.name} </Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text className="text-philly-gold">{beer.price}</Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text className="text-philly-gold">{beer.size}</Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text className="text-philly-gold">{beer.abv}</Text></DataTable.Cell>
+                        <DataTable.Cell>  <Text style={{ color: theme.colors.onPrimary}}> {beer.name} </Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onPrimary}}> {beer.price}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onPrimary}}> {beer.size}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onPrimary}}> {beer.abv}</Text></DataTable.Cell>
                     </DataTable.Row>
                 ))}
 
