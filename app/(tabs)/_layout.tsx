@@ -36,8 +36,8 @@ export default function TabLayout() {
                 tabBarActiveTintColor: theme.colors.surface,
                 tabBarInactiveTintColor: theme.colors.surfaceVariant,
                 tabBarStyle: {
-                    backgroundColor: theme.colors.surface,
-                    borderTopColor: theme.colors.background,
+                    backgroundColor: theme.colors.secondary,  // Dark frame at bottom
+                    borderTopColor: theme.colors.surfaceVariant,
                     height: 60 + insets.bottom,
                     paddingBottom: insets.bottom,
                     paddingTop: 8,
@@ -47,7 +47,7 @@ export default function TabLayout() {
                     fontWeight: '600',
                 },
                 headerStyle: {
-                    backgroundColor: theme.colors.surface,
+                    backgroundColor: theme.colors.secondary,
                 },
                 headerTintColor: theme.colors.onSurface,
                 headerTitleStyle: {

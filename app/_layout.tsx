@@ -19,15 +19,15 @@ const Theme = {
     ...MD3DarkTheme,
     colors: {
         ...MD3DarkTheme.colors,
-        primary: phillyColors.navy,
-        onPrimary: phillyColors.gold,
-        secondary: phillyColors.midnight,
+        primary: phillyColors.gold,
+        onPrimary: phillyColors.deepNavy,
+        secondary: phillyColors.deepNavy,
         onSecondary: phillyColors.gold,
         background: phillyColors.navy,
-        surface: phillyColors.gold,
-        surfaceVariant: phillyColors.darkGold,
-        onSurface: phillyColors.midnight,
-        onSurfaceVariant: phillyColors.midnight,  // dark gold
+        surface: phillyColors.deepNavy,
+        surfaceVariant: phillyColors.midnight,
+        onSurface: phillyColors.gold,
+        onSurfaceVariant: phillyColors.mutedGold,
     },
 };
 
