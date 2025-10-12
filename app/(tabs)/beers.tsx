@@ -10,7 +10,7 @@ export default function BeersScreen() {
     const [itemsPerPage, onItemsPerPageChange] = useState(
         numberOfItemsPerPageList[0]
     );
-    const [beerView, setBeerView] = useState("table");
+    const [beerView, setBeerView] = useState("Table");
     const beerViewTitles = ['Cards', 'Table'];
 
     const handleBeerViewChange = (value: string) => {
