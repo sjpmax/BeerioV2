@@ -1,6 +1,8 @@
-﻿
-import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
+﻿import { Tabs } from 'expo-router';
+import { View, Text} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from 'react-native-paper';
+
 function BeerIcon({ focused }: { focused: boolean }) {
     return (
         <View className={`w-6 h-6 items-center justify-center ${focused ? 'opacity-100' : 'opacity-50'}`}>
@@ -26,16 +28,18 @@ function AccountIcon({ focused }: { focused: boolean }) {
 }
 
 export default function TabLayout() {
+    const insets = useSafeAreaInsets();
+    const theme = useTheme();
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: '#f59e0b',
-                tabBarInactiveTintColor: '#9ca3af',
+                tabBarActiveTintColor: theme.colors.primary,
+                tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
                 tabBarStyle: {
-                    backgroundColor: '#1f2937',
-                    borderTopColor: '#374151',
-                    height: 60,
-                    paddingBottom: 8,
+                    backgroundColor: theme.colors.surface,
+                    borderTopColor: theme.colors.background,
+                    height: 60 + insets.bottom,
+                    paddingBottom: insets.bottom,
                     paddingTop: 8,
                 },
                 tabBarLabelStyle: {
@@ -43,9 +47,9 @@ export default function TabLayout() {
                     fontWeight: '600',
                 },
                 headerStyle: {
-                    backgroundColor: '#1f2937',
+                    backgroundColor: theme.colors.surface,
                 },
-                headerTintColor: '#fff',
+                headerTintColor: theme.colors.onSurface,
                 headerTitleStyle: {
                     fontWeight: 'bold',
                 },
