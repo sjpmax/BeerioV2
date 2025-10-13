@@ -21,6 +21,7 @@ const Theme = {
         ...MD3DarkTheme.colors,
         primary: phillyColors.gold,
         onPrimary: phillyColors.deepNavy,
+        primaryContainer: phillyColors.lighterNavy,
         secondary: phillyColors.deepNavy,
         onSecondary: phillyColors.gold,
         background: phillyColors.navy,

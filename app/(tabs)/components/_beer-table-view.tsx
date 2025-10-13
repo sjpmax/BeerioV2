@@ -1,8 +1,8 @@
-import { View, Text, ScrollView } from 'react-native';
-import { supabase, searchLocalBeers, BeerSuggestion } from '@/utils/supabase';
-import React, { useEffect, useState } from 'react';
-import { DataTable, SegmentedButtons, useTheme, List } from 'react-native-paper';
+import { BeerSuggestion } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { Text, View } from 'react-native';
+import { DataTable } from 'react-native-paper';
 
 interface BeerSuggestionProps {
     beerList: BeerSuggestion[];
