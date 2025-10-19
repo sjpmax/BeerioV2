@@ -2,7 +2,7 @@ import { BeerSuggestion } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
-import { DataTable, IconButton, Tooltip } from 'react-native-paper';
+import { DataTable } from 'react-native-paper';
 
 interface BeerSuggestionProps {
     beerList: BeerSuggestion[];
@@ -20,6 +20,14 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
     const from = page * itemsPerPage;
     const to = Math.min((page + 1) * itemsPerPage, beerList.length);
 
+const getValueGrade = (score) => {
+    if (score <= 0.09) return 'A';
+    if (score <= 0.10) return 'B';
+    if (score <= 0.12) return 'C';
+    if (score <= 0.14) return 'D';
+    return 'F';
+}
+
     return (
         <View style={{ backgroundColor: theme.colors.background}}>
 
@@ -29,23 +37,7 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Price</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Size(OZ)</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> ABV</Text></DataTable.Title>
-                    <DataTable.Title numeric>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 15 }}>
-                            <Text style={{color: theme.colors.onSecondary , marginRight: 1 }}>Value</Text>
-                            <Tooltip title="Value Score is calculated as (Price / Size) / (ABV %) to help identify the best value beers."
-                                enterTouchDelay={0}
-                                leaveTouchDelay={3000} >
-                            <IconButton
-                                icon="information"
-                                size={15}
-                                onPress={() => {}}
-                                accessibilityLabel="Value info"
-                                style={{ color: theme.colors.onSecondary, margin: 0, padding: 0 }}                               
-                            />
-                            </Tooltip>
-                        </View>
-                    </DataTable.Title>
-                    {/* <DataTable.Title numeric className='valueTableContainer'><Text style={{ color: theme.colors.onSecondary }}> Value</Text> <Button className='infoButton' children icon={"information"}></Button>    </DataTable.Title> */}
+                    <DataTable.Title numeric><Text style={{color: theme.colors.onSecondary  }}>Value</Text></DataTable.Title>
                 </DataTable.Header>
 
                 {beerList.slice(from, to).map((beer) => (
@@ -54,7 +46,7 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.price}</Text></DataTable.Cell>
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.size}</Text></DataTable.Cell>
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.abv}</Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.value_score}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {getValueGrade(beer.value_score)}</Text></DataTable.Cell>
                     </DataTable.Row>
                 ))}
 

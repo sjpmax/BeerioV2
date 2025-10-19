@@ -1,7 +1,7 @@
 ﻿import { Tabs } from 'expo-router';
-import { View, Text} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function BeerIcon({ focused }: { focused: boolean }) {
     return (
@@ -54,7 +54,6 @@ export default function TabLayout() {
                     fontWeight: 'bold',
                 },
             }}
-            style={{ backgroundColor: theme.colors.background }}
         >
             <Tabs.Screen
                 name="beers"

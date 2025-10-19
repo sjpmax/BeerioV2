@@ -1,10 +1,9 @@
-import { View, Text, ScrollView } from 'react-native';
-import { supabase, searchLocalBeers, BeerSuggestion } from '@/utils/supabase';
-import React, { useEffect, useState } from 'react';
-import { DataTable,SegmentedButtons, useTheme, List } from 'react-native-paper';
-import { Theme } from '@react-navigation/native';
-import BeerTableView from '@/components/_beer-table-view';
 import BeerCardView from '@/components/_beer-card-view';
+import BeerTableView from '@/components/_beer-table-view';
+import { searchLocalBeers } from '@/utils/supabase';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { IconButton, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
 
 export default function BeersScreen() {
 
@@ -12,6 +11,7 @@ export default function BeersScreen() {
     const [beerView, setBeerView] = useState("Table");
     const beerViewTitles = ['Cards', 'Table'];
 
+    const [visible, setVisible] = useState(false);
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
@@ -31,15 +31,16 @@ export default function BeersScreen() {
 
     return (
         <View
-            className="flex-1 p-15 mt-6"
+            className="flex-1 p-15"
             //contentContainerStyle={{ justifyContent: 'center' }}
             style={{ backgroundColor: theme.colors.background }}
         >           
-          
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: '35%', marginTop: 25 }}>
+   
             <SegmentedButtons
                 value={beerView}
                 onValueChange={handleBeerViewChange}
-                style={{ marginHorizontal: '35%', marginTop: 25 }}
+                style={{ flex: 1 }}
                 contentInset={{ bottom: 80 }} //IOS only
                 buttons={beerViewTitles.map((section) => ({
                     value: section,
@@ -59,6 +60,29 @@ export default function BeersScreen() {
                     },
                 }))}
             />
+
+                            <IconButton
+                                icon="information"
+                                size={15}
+                                 onPress={() => setVisible(true)}
+                                accessibilityLabel="Value info"
+                                                         
+                            />
+                            <Portal>
+                            <Snackbar
+                                visible={visible}
+                                onDismiss={() => setVisible(false)}
+                                duration={3000}   
+                                style={{ backgroundColor:  theme.colors.snackBarBG}} theme={{ 
+        colors: { 
+            onSurface: theme.colors.primary,  // Text color
+            inverseOnSurface: theme.colors.primary 
+        } 
+    }}
+                                >
+                                Value Score is calculated as (Price / Size) / (ABV %) to help identify the best value beers.
+                            </Snackbar></Portal>
+</View>
             {beerView === 'Table' ? (
                 <BeerTableView beerList={beers} theme={theme} />
             ) : (

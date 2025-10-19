@@ -1,8 +1,8 @@
 
+import { phillyColors } from '@/constants/colors';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
-import { phillyColors } from '@/constants/colors';
+import { MD3DarkTheme, PaperProvider } from 'react-native-paper';
 
 import '@/global.css';
 export const unstable_settings = {
@@ -30,6 +30,10 @@ const Theme = {
         surfaceVariant: phillyColors.midnight,
         onSurface: phillyColors.gold,
         onSurfaceVariant: phillyColors.mutedGold,
+        snackBarBG: phillyColors.lightNavy,
+        popLight: phillyColors.popLight,
+        accentGold: phillyColors.accent,
+        cardBG: phillyColors.cardBG,
     },
 };
 
@@ -39,15 +43,15 @@ export default function RootLayout() {
         <PaperProvider theme={Theme} >
             <Stack
                 screenOptions={{
-                    headerStyle: {
-                        backgroundColor: Theme.colors.secondary,
-                    },
-                    headerTintColor: '#fff',
-                    headerTitleStyle: {
-                        fontWeight: 'bold',
-                    },
+                   headerStyle: {
+          backgroundColor: '#f4511e',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
                 }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }}  />
             </Stack>
             <StatusBar style="auto" />
         </PaperProvider>

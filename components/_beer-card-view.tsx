@@ -1,7 +1,7 @@
 import { BeerSuggestion } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, FlatList, Text} from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { List } from 'react-native-paper';
 import { phillyColors } from '../constants/colors';
 
@@ -15,10 +15,18 @@ export default function BeerCardView({ beerList, theme }: BeerSuggestionProps) {
     const [expanded, setExpanded] = useState(true);
     const truncateText = (input) => input.length > 15 ? `${input.substring(0, 15)}...` : input;
     const handlePress = () => setExpanded(!expanded);
+
+    const getValueGrade = (score) => {
+    if (score <= 0.09) return 'A';
+    if (score <= 0.10) return 'B';
+    if (score <= 0.12) return 'C';
+    if (score <= 0.14) return 'D';
+    return 'F';
+}
     return (
 
 
-            <List.Section title="beers" className="flex flex-row p-5">
+            <List.Section title="" className="flex flex-row p-5">
             <FlatList
                 style={{ height: '100%' }}
                     data={beerList}
@@ -28,29 +36,30 @@ export default function BeerCardView({ beerList, theme }: BeerSuggestionProps) {
                     renderItem={({ item}) => {
                         return (                
                             <List.Accordion
-                        title={` ${truncateText(item.name)} | $${item.price} | Vaue: ${item.value_score} | ABV: ${item.abv}%`}
+                        title={` ${truncateText(item.name)} | $${item.price} | Vaue: ${getValueGrade(item.value_score)} | ABV: ${item.abv}%`}
                                 onPress={handlePress}
-                                className={"potato"}
-                        left={props => <List.Icon {...props} icon="glass-mug" />}
+                        left={props => <List.Icon {...props} />}
                                 style={{
-                                    backgroundColor: theme.colors.surfaceVariant,
-                                    borderRadius: 25,
+                                    backgroundColor: theme.colors.popLight,
+                                    borderRadius: 2,
                                     borderColor: phillyColors.gold,
                                     borderWidth: 1,                                    
-                                    marginTop: 10 
+                                    marginTop: 10 ,
+                                    paddingRight: 5,
                                 }}
+                                titleStyle={{ color: theme.colors.accentGold, marginLeft: -20 }}
                             >
                                 
 
 
 
                                 <View  style={{
-                                    backgroundColor: phillyColors.lighterNavy,
+                                    backgroundColor: phillyColors.cardBG,
                                     borderColor: phillyColors.gold,
                                     borderWidth: 1,
-                                    borderRadius: 25,
+                                    borderRadius: 5,
                                     borderTopWidth: 0,
-                                    marginHorizontal: '4%',
+                                    marginHorizontal: '2%',
                                     borderTopLeftRadius: 0,
                                     borderTopRightRadius: 0,
                                     flexDirection: 'column',  // This makes it horizontal!
@@ -58,7 +67,7 @@ export default function BeerCardView({ beerList, theme }: BeerSuggestionProps) {
                                 }}>
                                     <View style={{ padding: 8, alignItems: 'left', }}><Text style={{ fontWeight: 'bold', color: phillyColors.gold }} > {item.name} </Text></View>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', padding: 8 }}>
-                                        <Text className="red-text">Price: ${item.price}</Text>
+                                        <Text className="card-text">Price: ${item.price}</Text>
                                         <Text >Size: {item.size}oz</Text>
                                     </View>
 
