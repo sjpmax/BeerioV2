@@ -54,6 +54,7 @@ export default function TabLayout() {
                     fontWeight: 'bold',
                 },
             }}
+            style={{ backgroundColor: theme.colors.background }}
         >
             <Tabs.Screen
                 name="beers"

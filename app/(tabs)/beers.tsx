@@ -3,9 +3,11 @@ import { supabase, searchLocalBeers, BeerSuggestion } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { DataTable,SegmentedButtons, useTheme, List } from 'react-native-paper';
 import { Theme } from '@react-navigation/native';
-import BeerTableView from './components/_beer-table-view';
-import BeerCardView from './components/_beer-card-view';
+import BeerTableView from '@/components/_beer-table-view';
+import BeerCardView from '@/components/_beer-card-view';
+
 export default function BeersScreen() {
+
     const [beers, setBeers] = useState([]);
     const [beerView, setBeerView] = useState("Table");
     const beerViewTitles = ['Cards', 'Table'];
@@ -19,7 +21,8 @@ export default function BeersScreen() {
     useEffect(() => {
         async function fetchBeers() {
             const results = await searchLocalBeers('');
-            setBeers(results);
+            const sorted = [...results].sort((a, b) => a.value_score - b.value_score);
+            setBeers(sorted);
             console.log(results);
         }
         fetchBeers();
@@ -32,11 +35,12 @@ export default function BeersScreen() {
             //contentContainerStyle={{ justifyContent: 'center' }}
             style={{ backgroundColor: theme.colors.background }}
         >           
-
+          
             <SegmentedButtons
                 value={beerView}
                 onValueChange={handleBeerViewChange}
                 style={{ marginHorizontal: '35%', marginTop: 25 }}
+                contentInset={{ bottom: 80 }} //IOS only
                 buttons={beerViewTitles.map((section) => ({
                     value: section,
                     label: section,

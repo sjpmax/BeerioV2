@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
 import { phillyColors } from '@/constants/colors';
 
+import '@/global.css';
 export const unstable_settings = {
     anchor: '(tabs)',
 };

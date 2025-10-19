@@ -21,14 +21,15 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
     const to = Math.min((page + 1) * itemsPerPage, beerList.length);
 
     return (
-        <View>
+        <View style={{ backgroundColor: theme.colors.background}}>
 
-            <DataTable  >
+            <DataTable>
                 <DataTable.Header>
                     <DataTable.Title><Text style={{ color: theme.colors.onSecondary }}> Beer</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Price</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Size(OZ)</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> ABV</Text></DataTable.Title>
+                    <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Value i</Text> </DataTable.Title>
                 </DataTable.Header>
 
                 {beerList.slice(from, to).map((beer) => (
@@ -37,6 +38,7 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.price}</Text></DataTable.Cell>
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.size}</Text></DataTable.Cell>
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.abv}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.value_score}</Text></DataTable.Cell>
                     </DataTable.Row>
                 ))}
 
