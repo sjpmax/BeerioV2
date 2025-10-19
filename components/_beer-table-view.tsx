@@ -2,7 +2,7 @@ import { BeerSuggestion } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
-import { DataTable } from 'react-native-paper';
+import { DataTable, IconButton, Tooltip } from 'react-native-paper';
 
 interface BeerSuggestionProps {
     beerList: BeerSuggestion[];
@@ -29,7 +29,23 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Price</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Size(OZ)</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> ABV</Text></DataTable.Title>
-                    <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Value i</Text> </DataTable.Title>
+                    <DataTable.Title numeric>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 15 }}>
+                            <Text style={{color: theme.colors.onSecondary , marginRight: 1 }}>Value</Text>
+                            <Tooltip title="Value Score is calculated as (Price / Size) / (ABV %) to help identify the best value beers."
+                                enterTouchDelay={0}
+                                leaveTouchDelay={3000} >
+                            <IconButton
+                                icon="information"
+                                size={15}
+                                onPress={() => {}}
+                                accessibilityLabel="Value info"
+                                style={{ color: theme.colors.onSecondary, margin: 0, padding: 0 }}                               
+                            />
+                            </Tooltip>
+                        </View>
+                    </DataTable.Title>
+                    {/* <DataTable.Title numeric className='valueTableContainer'><Text style={{ color: theme.colors.onSecondary }}> Value</Text> <Button className='infoButton' children icon={"information"}></Button>    </DataTable.Title> */}
                 </DataTable.Header>
 
                 {beerList.slice(from, to).map((beer) => (

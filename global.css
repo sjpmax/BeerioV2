@@ -10,3 +10,18 @@ color: red;
 .card-title-box {
 
 }
+
+.infoButton {
+  padding-left: 1px;
+  width: 30px;
+  height: 20px;
+  padding-top: 7px;
+}
+
+.valueTableContainer {
+  display: flex; 
+  flex-direction: row;
+  align-items: center;
+  justify-content: right;
+  padding-top: 1px;
+}
