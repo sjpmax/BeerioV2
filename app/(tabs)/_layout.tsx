@@ -33,8 +33,8 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: theme.colors.surface,
-                tabBarInactiveTintColor: theme.colors.surfaceVariant,
+                tabBarActiveTintColor: theme.colors.accentGold,
+                tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
                 tabBarStyle: {
                     backgroundColor: theme.colors.secondary,  // Dark frame at bottom
                     borderTopColor: theme.colors.surfaceVariant,
@@ -46,13 +46,10 @@ export default function TabLayout() {
                     fontSize: 12,
                     fontWeight: '600',
                 },
-                headerStyle: {
-                    backgroundColor: theme.colors.secondary,
-                },
-                headerTintColor: theme.colors.onSurface,
-                headerTitleStyle: {
-                    fontWeight: 'bold',
-                },
+                headerShown: true,
+                headerStyle: { backgroundColor: theme.colors.primary ,
+                    height: 50
+                }
             }}
         >
             <Tabs.Screen
