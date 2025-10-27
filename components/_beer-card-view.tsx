@@ -1,6 +1,6 @@
 import { GroupedBeer } from '@/utils/supabase';
 import { Link, Theme } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FlatList, Linking, Platform, Text, View } from 'react-native';
 import { Icon, List } from 'react-native-paper';
 import { phillyColors } from '../constants/colors';
@@ -15,9 +15,11 @@ interface BeerSuggestionProps {
 export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProps) {
 
     const [expanded, setExpanded] = useState<boolean>(true);
-    const truncateText = (input: string): string => input.length > 30 ? `${input.substring(0, 30)}...` : input;
+    const [expandedIds, setExpandedIds] = useState(new Set());
+    const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
     const handlePress = () => setExpanded(!expanded);
     const { location, requestPermission } = useLocation();
+
     const openInMaps = async (latitude: number, longitude: number) => {
         if (latitude == null || longitude == null) return;
         const coords = `${latitude},${longitude}`;
@@ -43,7 +45,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
     const getCardColor = (index: number, totalItems: number) => {
         // Creates a gradient from one color to another
         const startColor = { r: 42, g: 74, b: 94 };  // Your popLight color
-            const endColor = { r: 89, g: 78, b: 128 }; // Your accent color
+        const endColor = { r: 89, g: 78, b: 128 }; // Your accent color
         //const endColor = { r: 10, g: 25, b: 41 };    // Darker blue
 
         const ratio = index / totalItems;
@@ -54,6 +56,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
 
         return `rgb(${r}, ${g}, ${b})`;
     };
+
     const getValueGrade = (score: number): string => {
         // Lazy-require Avatar so you don't need to modify top-level imports here.
         // You can replace this with a top-level: `import { Avatar } from 'react-native-paper'`
@@ -106,6 +109,8 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
         );
     };
 
+
+
     const distanceFromBar = (barLat?: number | null, barLong?: number | null): string | null => {
         if (location && typeof barLat === 'number' && typeof barLong === 'number') {
             //console.log('Calculating distance from bar:', { barLat, barLong, userLat: location.coords.latitude, userLong: location.coords.longitude });
@@ -130,6 +135,31 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
         return null;
     }
 
+    const barDistances = useMemo(() => {
+        const result = {};
+        if (location) {
+            Object.values(groupedBeers).forEach(beer => {
+                beer.locations.forEach(loc => {
+                    if (loc.bar_lat && loc.bar_long) {
+                        const key = `${loc.bar_lat}-${loc.bar_long}`;
+                        result[key] = distanceFromBar(loc.bar_lat, loc.bar_long);
+                    }
+                });
+            });
+        }
+        return result;
+    }, [location, groupedBeers]);
+    const toggleAccordion = (id: string) => {
+        setExpandedIds(prevState => {
+            const newState = new Set(prevState);
+            if (newState.has(id)) {
+                newState.delete(id);
+            } else {
+                newState.add(id);
+            }
+            return newState;
+        });
+    };
 
     return (
 
@@ -139,82 +169,131 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                 style={{ height: '100%' }}
                 data={Object.values(groupedBeers)}
                 keyExtractor={(item) => item.id}
-
                 contentContainerStyle={{ paddingHorizontal: '10%', paddingBottom: 60 }}
-                renderItem={({ item, index }) => {
-                    return (
+                renderItem={({ item, index }) => (
+                    <List.Accordion
+                        title={`$/Oz: ${typeof item.best_cost_per_oz === 'string'
+                                ? parseFloat(item.best_cost_per_oz).toFixed(2)
+                                : item.best_cost_per_oz?.toFixed(2) || 'N/A'
+                            } - ${truncateText(item.name, 30)}`}
+                        expanded={expandedIds.has(item.id)}
+                        onPress={() => toggleAccordion(item.id)}
+                        style={{
+                            backgroundColor: getCardColor(index, Object.values(groupedBeers).length),
+                            borderRadius: 2,
+                            borderColor: phillyColors.gold,
+                            borderWidth: 1,
+                            marginTop: 10,
+                            paddingRight: 5,
+                            paddingLeft: 20,
+                        }}
+                        titleStyle={{ color: '#fff', marginLeft: -20 }}
+                    >
+                        <View style={{
+                            backgroundColor: phillyColors.cardBG,
+                            borderColor: phillyColors.gold,
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            borderTopWidth: 0,
+                            marginHorizontal: '2%',
+                            borderTopLeftRadius: 0,
+                            borderTopRightRadius: 0,
+                            padding: 8,
+                        }}>
+                            {/* Beer name */}
 
-                        <List.Accordion
-                            title={`$/Oz: ${item.best_cost_per_oz} -  ${truncateText(item.name)}  `}
-                            onPress={handlePress}
-                            // right={props => renderValueGradeAvatar(item.value_score ?? 0)}
-                            style={{
-                                backgroundColor: getCardColor(index, Object.values(groupedBeers).length),
-                                // backgroundColor: (theme.colors as any).popLight ?? theme.colors.background,
-                                borderRadius: 2,
-                                borderColor: phillyColors.gold,
-                                borderWidth: 1,
-                                marginTop: 10,
-                                paddingRight: 5,
-                                paddingLeft: 20,
-                            }}
-                            titleStyle={{ color: '#fff', marginLeft: -20 }}
-                        >
-                            <View style={{
-                                backgroundColor: phillyColors.cardBG,
-                                borderColor: phillyColors.gold,
-                                borderWidth: 1,
-                                borderRadius: 5,
-                                borderTopWidth: 0,
-                                marginHorizontal: '2%',
-                                borderTopLeftRadius: 0,
-                                borderTopRightRadius: 0,
-                                padding: 8,
-                            }}>
-                                {/* Beer name */}
-
-                                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-                                    <View style={{ flex: 1 , alignItems: 'flex-start' }}>
-                                        <Text style={{ fontWeight: 'bold', color: phillyColors.gold }}>
-                                            {item.name}
-                                        </Text>
-                                    </View>
-                                    <View style={{ flex: 1 , alignItems: 'flex-end' }}>
-                                        <Text style={{ fontWeight: 'bold', color: phillyColors.gold }}>
-                                            ${item.price}
-                                        </Text>
-                                    </View>
+                            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                                <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                                    <Text style={{ fontWeight: 'bold', color: phillyColors.gold }}>
+                                        {item.name}
+                                    </Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: phillyColors.gold }}> {item.type}</Text>
                                 </View>
 
-                                {/* First row - Price and Size */}
-                                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ color: phillyColors.gold }}> {item.abv}%</Text>
-                                    </View>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={{ color: phillyColors.gold }}>{item.size}oz</Text>
-                                    </View>
-                                     <View style={{ flex: 1 }}>
-                                        <Text style={{ color: phillyColors.gold }}> {item.type}</Text>
-                                    </View>
-                                </View>
 
-                                {/* Second row - Location */}
-                                <View style={{ flexDirection: 'row' }}>
-                                    <View style={{ flex: 2 }}>
-                                        <Text style={{ color: phillyColors.gold }}><Link style={{ color: phillyColors.accent, fontWeight: 'bold' }} source="map-marker" size={16} color={phillyColors.gold} onPress={() => openInMaps(item.bar_lat, item.bar_long)} >
-                                            <Icon source="map-marker" size={16} color={phillyColors.gold} /> {item.bar_name || 'N/A'}
-                                            {location
-                                                ? `, (${distanceFromBar(item.bar_lat, item.bar_long) ?? 'N/A'} mi)`
-                                                : ', Location permission not granted'}
-                                        </Link>
-                                        </Text>
-                                    </View>
+                                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                                    <Text style={{ fontWeight: 'bold', color: phillyColors.gold }}>
+                                        ${item.best_price}
+                                    </Text>
                                 </View>
                             </View>
-                        </List.Accordion>)
-                }}
+
+                            {/* First row - Price and Size */}
+                            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                                <View style={{ flex: 1 }}></View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: phillyColors.gold }}> {item.abv}%</Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: phillyColors.gold }}>{item.locations[0].size}oz</Text>
+                                </View>
+                            </View>
+
+                            {/* Second row - Location */}
+                            <View style={{ flexDirection: 'row' }}>
+
+                                <View style={{ flex: 2 }}>
+                                    {expandedIds.has(item.id) && item.locations && item.locations.length > 0 && (
+                                        <Text style={{ color: phillyColors.gold }}>
+                                            <Link
+                                                style={{ color: phillyColors.accent, fontWeight: 'bold' }}
+                                                onPress={() => openInMaps(
+                                                    item.locations[0].bar_lat,
+                                                    item.locations[0].bar_long
+                                                )}
+                                            >
+                                                <Icon source="map-marker" size={16} color={phillyColors.gold} />
+                                                {item.locations[0].bar_name || 'N/A'}
+
+                                                {location
+                                                    ? `, (${barDistances[`${item.locations[0].bar_lat}-${item.locations[0].bar_long}`] ?? 'N/A'} mi)`
+                                                    : ', Location permission not granted'}
+                                            </Link>
+                                        </Text>
+                                    )}
+                                </View>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{ color: "#AAA", paddingLeft: 2 }}>Available at these Location(s):</Text>
+                               
+                                {item.locations.map((location, index) => ( 
+                                    <View style={{flexDirection: 'row'}}> 
+                                    <View style={{ flex: 3}}>
+                                    <Text key={index} style={{ color: "#AAA", paddingLeft: 2 }}>
+                                        <Link
+                                            style={{ color: "#AAA", fontWeight: 'bold' }}
+                                            onPress={() => openInMaps(
+                                                location.bar_lat,
+                                                location.bar_long
+                                            )}
+                                        >
+                                            <Icon source="map-marker" size={16} color={"#AAA"} />
+                                            {truncateText(location.bar_name, 6) || 'N/A'}
+                                            {location
+                                                ? `, (${barDistances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
+                                                : ', Location permission not granted'}
+                                        </Link>
+                                        - ${location.price} for {location.size}oz
+                                    </Text>
+                                    </View>
+                                    <View style={{ alignItems: 'flex-end', alignSelf: 'flex-end' }}>
+                                        <Text style={{ color: index === 0 ? "#FFF" : "#AAA", paddingLeft: 2 }}>
+                                            {index === 0
+                                                ? `($${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/Oz)`
+                                                : `(${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/Oz)`}
+                                        </Text>
+                                    </View>
+                                </View>
+                                ))}
+                            </View>
+                            
+                        </View>
+                    </List.Accordion>
+                )}
             />
+
 
         </List.Section>
     );

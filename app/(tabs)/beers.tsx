@@ -26,7 +26,9 @@ export default function BeersScreen() {
                 (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
             );
 
+            console.log('Fetched beers:', sorted);
             const grouped = sorted.reduce((acc, beer) => {
+                
                 const key = beer.name; // Use beer name as key
 
                 if (!acc[key]) {
@@ -37,6 +39,7 @@ export default function BeersScreen() {
                         type: beer.type,
                         brewery: beer.brewery, // This should now work if your interface matches
                         best_cost_per_oz: beer.cost_per_alcohol_oz,
+                        best_size: beer.size,
                         best_price: beer.price,
                         source: beer.source,
                         locations: [],
@@ -46,10 +49,8 @@ export default function BeersScreen() {
                     if (beer.cost_per_alcohol_oz &&
                         beer.cost_per_alcohol_oz < acc[key].best_cost_per_oz!) {
                         acc[key].best_cost_per_oz = beer.cost_per_alcohol_oz;
-                    }
-                    if (beer.price &&
-                        beer.price < acc[key].best_price!) {
                         acc[key].best_price = beer.price;
+                        acc[key].best_size = beer.size;
                     }
                 }
 
@@ -60,9 +61,11 @@ export default function BeersScreen() {
                     bar_lat: beer.bar_lat,
                     bar_long: beer.bar_long,
                     cost_per_alcohol_oz: beer.cost_per_alcohol_oz,
-                    bar_address: beer.bar_address
+                    bar_address: beer.bar_address,
+                    size: beer.size,
                 });
 
+                return acc;
             }, {} as Record<string, GroupedBeer>);
 
             setGroupedBeers(grouped);
