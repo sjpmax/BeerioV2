@@ -132,7 +132,7 @@ export default function BeersScreen() {
             </View>
 
             {beerView === 'Table' ? (
-                <BeerTableView beerList={beers} theme={theme} />
+                <BeerTableView groupedBeers={groupedBeers} theme={theme} />
             ) : (
                 <BeerCardView  groupedBeers={groupedBeers} theme={theme} />
             )}

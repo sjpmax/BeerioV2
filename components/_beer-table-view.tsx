@@ -5,12 +5,13 @@ import { Text, View } from 'react-native';
 import { DataTable } from 'react-native-paper';
 
 interface BeerSuggestionProps {
-    beerList: BeerSuggestion[];
+    groupedBeers: BeerSuggestion[];
     theme: Theme;
 }
 
-export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) {
+export default function BeerTableView({ groupedBeers, theme }: BeerSuggestionProps) {
 
+    console.log('Rendering BeerTableView with beers:', Object.values(groupedBeers));
     const [page, setPage] = useState<number>(0);
     const [numberOfItemsPerPageList] = useState([10, 20, 30]);
     const [itemsPerPage, onItemsPerPageChange] = useState(
@@ -18,15 +19,8 @@ export default function BeerTableView({ beerList, theme }: BeerSuggestionProps) 
     );
 
     const from = page * itemsPerPage;
-    const to = Math.min((page + 1) * itemsPerPage, beerList.length);
+    const to = Math.min((page + 1) * itemsPerPage, Object.values(groupedBeers).length);
 
-const getValueGrade = (score) => {
-    if (score <= 0.09) return 'A';
-    if (score <= 0.10) return 'B';
-    if (score <= 0.12) return 'C';
-    if (score <= 0.14) return 'D';
-    return 'F';
-}
 
     return (
         <View style={{ backgroundColor: theme.colors.background}}>
@@ -37,24 +31,24 @@ const getValueGrade = (score) => {
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Price</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> Size(OZ)</Text></DataTable.Title>
                     <DataTable.Title numeric><Text style={{ color: theme.colors.onSecondary }}> ABV</Text></DataTable.Title>
-                    <DataTable.Title numeric><Text style={{color: theme.colors.onSecondary  }}>Value</Text></DataTable.Title>
+                    <DataTable.Title numeric><Text style={{color: theme.colors.onSecondary  }}>$/Oz</Text></DataTable.Title>
                 </DataTable.Header>
 
-                {beerList.slice(from, to).map((beer) => (
+                {Object.values(groupedBeers).slice(from, to).map((beer) => (
                     <DataTable.Row key={beer.id}>
                         <DataTable.Cell>  <Text style={{ color: theme.colors.onSecondary }}> {beer.name} </Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.price}</Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.size}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.best_price}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.best_size}</Text></DataTable.Cell>
                         <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.abv}</Text></DataTable.Cell>
-                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {getValueGrade(beer.value_score)}</Text></DataTable.Cell>
+                        <DataTable.Cell numeric><Text style={{ color: theme.colors.onSecondary }}> {beer.best_cost_per_oz}</Text></DataTable.Cell>
                     </DataTable.Row>
                 ))}
 
                 <DataTable.Pagination
                     page={page}
-                    numberOfPages={Math.ceil(beerList.length / itemsPerPage)}
+                    numberOfPages={Math.ceil(Object.values(groupedBeers).length / itemsPerPage)}
                     onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${beerList.length}`}
+                    label={`${from + 1}-${to} of ${Object.values(groupedBeers).length}`}
                     numberOfItemsPerPageList={numberOfItemsPerPageList}
                     numberOfItemsPerPage={itemsPerPage}
                     onItemsPerPageChange={onItemsPerPageChange}
