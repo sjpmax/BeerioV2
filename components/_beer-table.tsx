@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import BeerTableHeader from './_beer-table-header';
+import BeerTableRow from './_beer-table-row';
 
 interface BeerSuggestionProps {
   groupedBeers: any[];
@@ -20,11 +21,23 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
     }
     setExpandedRows(newExpandedRows);
   };
+
     return (
-        <View style={{ backgroundColor: theme.colors.background, flexDirection: 'row' }}>
+        <View style={{ backgroundColor: theme.colors.background,
+                        width: '100%',  
+                        padding: 10   }}>
             <BeerTableHeader/>
-
-
+            <FlatList
+                data={groupedBeers}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item, index }) => (
+                    <View key={item.id} >
+                        <View>
+                            <BeerTableRow groupedBeers={item} theme={theme} rowID={index} isExpanded={expandedRows.has(item.id)} onToggle={() => toggleRow(item.id)} />
+                        </View>
+                    </View>
+                )}
+            />
 
         </View>
     );

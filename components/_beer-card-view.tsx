@@ -20,14 +20,14 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
     const handlePress = () => setExpanded(!expanded);
     const { location, requestPermission } = useLocation();
 
-    const openInMaps = async (latitude: number, longitude: number) => {
+    const openInMaps = async (latitude: number, longitude: number, name: string) => {
         if (latitude == null || longitude == null) return;
         const coords = `${latitude},${longitude}`;
         // Try platform-specific URI first, fallback to Google Maps web URL
         const appUrl = Platform.OS === 'ios'
             ? `maps:0,0?q=${coords}`
             : `geo:0,0?q=${coords}`;
-        const webUrl = `https://maps.google.com?q=${coords}`;
+        const webUrl = `https://maps.google.com?q=${name}&loc:${coords}`;
 
         try {
             const can = await Linking.canOpenURL(appUrl);
@@ -241,7 +241,8 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                                 style={{ color: phillyColors.accent, fontWeight: 'bold' }}
                                                 onPress={() => openInMaps(
                                                     item.locations[0].bar_lat,
-                                                    item.locations[0].bar_long
+                                                    item.locations[0].bar_long, 
+                                                    item.name
                                                 )}
                                             >
                                                 <Icon source="map-marker" size={16} color={phillyColors.gold} />
@@ -266,7 +267,8 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                             style={{ color: "#AAA", fontWeight: 'bold' }}
                                             onPress={() => openInMaps(
                                                 location.bar_lat,
-                                                location.bar_long
+                                                location.bar_long, 
+                                                    item.name
                                             )}
                                         >
                                             <Icon source="map-marker" size={16} color={"#AAA"} />
