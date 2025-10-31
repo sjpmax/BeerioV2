@@ -1,5 +1,5 @@
+import { calculateBarDistances, openInMaps } from '@/utils/mapUtils';
 import { GroupedBeer } from '@/utils/supabase';
-import { openInMaps } from '@/utils/mapUtils';
 import { Theme } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
@@ -13,6 +13,11 @@ interface BeerSuggestionProps {
     theme: Theme;
 }
 
+const distances = useMemo(() => 
+    calculateBarDistances(location, beers), 
+    [location, beers]
+);
+
 export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProps) {
 
     const [expanded, setExpanded] = useState<boolean>(true);
@@ -20,6 +25,8 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
     const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
     const handlePress = () => setExpanded(!expanded);
     const { location, requestPermission } = useLocation();
+
+   
 
     console.log('Current location in BeerCardView:', location);
 
@@ -91,47 +98,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
         );
     };
 
-
-
-    const distanceFromBar = (barLat?: number | null, barLong?: number | null): string | null => {
-        if (location && typeof barLat === 'number' && typeof barLong === 'number') {
-            //console.log('Calculating distance from bar:', { barLat, barLong, userLat: location.coords.latitude, userLong: location.coords.longitude });
-            const toRad = (value: number) => (value * Math.PI) / 180;
-            const R = 3958.8; // Radius of the Earth in miles
-            console.log('User location:', location.coords.latitude, location.coords.longitude);
-            console.log('Bar location:', barLat, barLong);
-            const dLat = toRad(barLat - location.coords.latitude);
-            const dLon = toRad(barLong - location.coords.longitude);
-
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRad(location.coords.latitude)) *
-                Math.cos(toRad(barLat)) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c;
-            return distance.toFixed(2); // Return distance in miles, rounded to 2 decimal places
-        }
-
-        return null;
-    }
-
-    const barDistances = useMemo(() => {
-        const result = {};
-        if (location) {
-            Object.values(groupedBeers).forEach(beer => {
-                beer.locations.forEach(loc => {
-                    if (loc.bar_lat && loc.bar_long) {
-                        const key = `${loc.bar_lat}-${loc.bar_long}`;
-                        result[key] = distanceFromBar(loc.bar_lat, loc.bar_long);
-                    }
-                });
-            });
-        }
-        return result;
-    }, [location, groupedBeers]);
-    const toggleAccordion = (id: string) => {
+const toggleAccordion = (id: string) => {
         setExpandedIds(prevState => {
             const newState = new Set(prevState);
             if (newState.has(id)) {
@@ -142,6 +109,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
             return newState;
         });
     };
+
 
     return (
 
@@ -231,7 +199,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                                 {item.locations[0].bar_name || 'N/A'}
 
                                                 {location
-                                                    ? `, (${barDistances[`${item.locations[0].bar_lat}-${item.locations[0].bar_long}`] ?? 'N/A'} mi)`
+                                                    ? `, (${distances[`${item.locations[0].bar_lat}-${item.locations[0].bar_long}`] ?? 'N/A'} mi)`
                                                     : ', Location permission not granted'}
                                             </Text>
                                         </Text>
@@ -256,7 +224,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                             <Icon source="map-marker" size={16} color={"#AAA"} />
                                             {truncateText(location.bar_name, 6) || 'N/A'}
                                             {location
-                                                ? `, (${barDistances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
+                                                ? `, (${distances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
                                                 : ', Location permission not granted'}
                                         </Text>
                                         - ${location.price} for {location.size}oz
