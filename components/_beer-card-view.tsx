@@ -1,7 +1,8 @@
 import { GroupedBeer } from '@/utils/supabase';
-import { Link, Theme } from '@react-navigation/native';
+import { openInMaps } from '@/utils/mapUtils';
+import { Theme } from '@react-navigation/native';
 import React, { useMemo, useState } from 'react';
-import { FlatList, Linking, Platform, Text, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { Icon, List } from 'react-native-paper';
 import { phillyColors } from '../constants/colors';
 import useLocation from '../hooks/useLocation';
@@ -19,25 +20,6 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
     const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
     const handlePress = () => setExpanded(!expanded);
     const { location, requestPermission } = useLocation();
-
-    const openInMaps = async (latitude: number, longitude: number, name: string) => {
-        if (latitude == null || longitude == null) return;
-        const coords = `${latitude},${longitude}`;
-        // Try platform-specific URI first, fallback to Google Maps web URL
-        const appUrl = Platform.OS === 'ios'
-            ? `maps:0,0?q=${coords}`
-            : `geo:0,0?q=${coords}`;
-        const webUrl = `https://maps.google.com?q=${name}&loc:${coords}`;
-
-        try {
-            const can = await Linking.canOpenURL(appUrl);
-            await Linking.openURL(can ? appUrl : webUrl);
-        } catch (err) {
-            console.error('Unable to open map URL', err);
-            // final fallback
-            await Linking.openURL(webUrl);
-        }
-    };
 
     console.log('Current location in BeerCardView:', location);
 
@@ -237,7 +219,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                 <View style={{ flex: 2 }}>
                                     {expandedIds.has(item.id) && item.locations && item.locations.length > 0 && (
                                         <Text style={{ color: phillyColors.gold }}>
-                                            <Link
+                                            <Text
                                                 style={{ color: phillyColors.accent, fontWeight: 'bold' }}
                                                 onPress={() => openInMaps(
                                                     item.locations[0].bar_lat,
@@ -251,7 +233,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                                 {location
                                                     ? `, (${barDistances[`${item.locations[0].bar_lat}-${item.locations[0].bar_long}`] ?? 'N/A'} mi)`
                                                     : ', Location permission not granted'}
-                                            </Link>
+                                            </Text>
                                         </Text>
                                     )}
                                 </View>
@@ -260,10 +242,10 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                 <Text style={{ color: "#AAA", paddingLeft: 2 }}>Available at these Location(s):</Text>
                                
                                 {item.locations.map((location, index) => ( 
-                                    <View style={{flexDirection: 'row'}}> 
+                                    <View key={index} style={{flexDirection: 'row'}}> 
                                     <View style={{ flex: 3}}>
-                                    <Text key={index} style={{ color: "#AAA", paddingLeft: 2 }}>
-                                        <Link
+                                    <Text  style={{ color: "#AAA", paddingLeft: 2 }}>
+                                        <Text
                                             style={{ color: "#AAA", fontWeight: 'bold' }}
                                             onPress={() => openInMaps(
                                                 location.bar_lat,
@@ -276,7 +258,7 @@ export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProp
                                             {location
                                                 ? `, (${barDistances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
                                                 : ', Location permission not granted'}
-                                        </Link>
+                                        </Text>
                                         - ${location.price} for {location.size}oz
                                     </Text>
                                     </View>
