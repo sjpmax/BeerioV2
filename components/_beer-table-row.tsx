@@ -1,20 +1,35 @@
 import { phillyColors } from '@/constants/colors';
+import { LocationStatus } from '@/hooks/useLocation';
 import { openInMaps } from '@/utils/mapUtils';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 
-const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
-// Make sure your interface includes the distances prop
+const truncateText = (input: string, maxLength: number): string => 
+  input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
+
+// Updated interface to match all props
 interface BeerSuggestionProps {
   groupedBeers: any;
   theme: any;
   isExpanded: boolean;
   onToggle: () => void;
   rowID: number;
-  distances: Record<string, string | null>; // Add this
+  distances: Record<string, string | null>;
+  locationStatus: LocationStatus;
+  getDistanceMessage: (lat?: number | null, long?: number | null) => string;
 }
-export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle, rowID, distances }: BeerSuggestionProps) {
+
+export default function BeerTableRow({ 
+  groupedBeers, 
+  theme, 
+  isExpanded, 
+  onToggle, 
+  rowID, 
+  distances,
+  locationStatus,
+  getDistanceMessage
+}: BeerSuggestionProps) {
   return (
     <>
       {/* Make the whole row touchable */}
@@ -82,28 +97,26 @@ export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle
           <View style={{ flexDirection: 'row' }}>
             <View style={{ flex: 1 }}></View>
             <View style={{ flex: 9, paddingLeft: 15, backgroundColor: 'rgba(255,255,255,0.05)' }}>
-              {groupedBeers.locations.map((location: any, idx: number) => (
-                <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
-                  <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
-                    location.bar_lat,
-                    location.bar_long,
-                    groupedBeers.name
-                  )}
-                  >
-                    <Icon source="map-marker" size={16} color={phillyColors.gold} />
-                    {location.bar_name || 'N/A'}
-
-                     {/* Display distance if available */}
-  {location.bar_lat && location.bar_long && distances
-    ? `, (${distances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
-    : ''}
-                    {location.bar_name}
-                  </Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>{location.size}oz</Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/oz</Text>
-                </View>
-              ))}
+                {groupedBeers.locations.map((location: any, idx: number) => (
+            <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
+              <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
+                location.bar_lat,
+                location.bar_long, 
+                groupedBeers.name
+              )}>
+                <Icon source="map-marker" size={16} color={phillyColors.gold} />
+                {location.bar_name || 'N/A'}
+                
+                {/* Use the getDistanceMessage function */}
+                {` ${getDistanceMessage(location.bar_lat, location.bar_long)}`}
+              </Text>
+              <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>
+              <Text style={{ flex: 1, color: '#AAA' }}>{location.size}oz</Text>
+              <Text style={{ flex: 1, color: '#AAA' }}>
+                ${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/oz
+              </Text>
+            </View>
+          ))}
             </View>
           </View>
         </View>

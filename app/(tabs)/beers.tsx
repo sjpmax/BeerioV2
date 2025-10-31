@@ -157,21 +157,23 @@ export default function BeersScreen() {
                 </View>
             </View>
 
-            {beerView === 'Table' ? (
-                <BeerTableView 
-                    groupedBeers={groupedBeers} 
-                    theme={theme} 
-                    location={location}
-                    locationStatus={status}
-                    getDistanceMessage={getDistanceMessage}/>
-            ) : (
-                <BeerCardView  
-                    groupedBeers={groupedBeers} 
-                    theme={theme} 
-                    location={location}
-                    locationStatus={status}
-                    getDistanceMessage={getDistanceMessage}/>
-            )}
+            {beerView === "Cards" ? (
+    <BeerCardView 
+        groupedBeers={groupedBeers} 
+        theme={theme} 
+        location={location}
+        locationStatus={status}
+        getDistanceMessage={getDistanceMessage}
+    />
+) : (
+    <BeerTableView 
+        groupedBeers={Object.values(groupedBeers)} 
+        theme={theme}
+        location={location}
+        locationStatus={status}
+        getDistanceMessage={getDistanceMessage}
+    />
+)}
   <Portal>
                 <Snackbar
                     visible={snackVisible}
