@@ -13,10 +13,6 @@ interface BeerSuggestionProps {
     theme: Theme;
 }
 
-const distances = useMemo(() => 
-    calculateBarDistances(location, beers), 
-    [location, beers]
-);
 
 export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProps) {
 
@@ -110,6 +106,10 @@ const toggleAccordion = (id: string) => {
         });
     };
 
+    const distances = useMemo(() => 
+    calculateBarDistances(location, groupedBeers), 
+    [location, groupedBeers]
+);
 
     return (
 

@@ -6,7 +6,10 @@ import { openInMaps } from '@/utils/mapUtils';
 
 const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
 
-export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle, rowID }: BeerSuggestionProps) {
+export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle, rowID, distances }: BeerSuggestionProps) {
+  
+    console.log('Current table row:', groupedBeers);
+    console.log('Distances for this row:', distances);
   return (
     <>
       {/* Make the whole row touchable */}
@@ -86,7 +89,7 @@ export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle
                                                                   {location.bar_name || 'N/A'}
                   
                                                                   {location
-                                                                      ? `, (${barDistances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
+                                                                      ? `, (${distances[location.id] ?? 'N/A'} mi)`
                                                                       : ', Location permission not granted'}>
                     {location.bar_name}
                     </Text>

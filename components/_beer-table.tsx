@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import { calculateBarDistances } from '@/utils/mapUtils';
+import React, { useMemo, useState } from 'react';
 import { FlatList, View } from 'react-native';
+import useLocation from '../hooks/useLocation';
 import BeerTableHeader from './_beer-table-header';
 import BeerTableRow from './_beer-table-row';
 
@@ -11,6 +13,7 @@ interface BeerSuggestionProps {
 export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
 
   const [expandedRows, setExpandedRows] = useState(new Set());
+      const { location, requestPermission } = useLocation();
   
   const toggleRow = (id) => {
     const newExpandedRows = new Set(expandedRows);
@@ -21,6 +24,12 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
     }
     setExpandedRows(newExpandedRows);
   };
+
+  
+      const distances = useMemo(() => 
+      calculateBarDistances(location, groupedBeers), 
+      [location, groupedBeers]
+  );
 
     return (
         <View style={{ backgroundColor: theme.colors.background,
@@ -33,7 +42,7 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
                 renderItem={({ item, index }) => (
                     <View key={item.id} >
                         <View>
-                            <BeerTableRow groupedBeers={item} theme={theme} rowID={index} isExpanded={expandedRows.has(item.id)} onToggle={() => toggleRow(item.id)} />
+                            <BeerTableRow groupedBeers={item} theme={theme} rowID={index} isExpanded={expandedRows.has(item.id)} onToggle={() => toggleRow(item.id)} distances={distances[item.id]} />
                         </View>
                     </View>
                 )}
