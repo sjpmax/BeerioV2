@@ -1,15 +1,12 @@
 import { phillyColors } from '@/constants/colors';
+import { openInMaps } from '@/utils/mapUtils';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-paper';
-import { openInMaps } from '@/utils/mapUtils';
 
 const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
 
 export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle, rowID, distances }: BeerSuggestionProps) {
-  
-    console.log('Current table row:', groupedBeers);
-    console.log('Distances for this row:', distances);
   return (
     <>
       {/* Make the whole row touchable */}
@@ -89,8 +86,8 @@ export default function BeerTableRow({ groupedBeers, theme, isExpanded, onToggle
                                                                   {location.bar_name || 'N/A'}
                   
                                                                   {location
-                                                                      ? `, (${distances[location.id] ?? 'N/A'} mi)`
-                                                                      : ', Location permission not granted'}>
+                                                                      ? `, (${distances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
+                                                                      : ', Location permission not granted'}
                     {location.bar_name}
                     </Text>
                   <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>

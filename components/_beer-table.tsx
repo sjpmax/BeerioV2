@@ -26,10 +26,15 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
   };
 
   
-      const distances = useMemo(() => 
-      calculateBarDistances(location, groupedBeers), 
-      [location, groupedBeers]
-  );
+  const distances = useMemo(() => {
+    // Convert array to record format for calculateBarDistances
+    const beersRecord = groupedBeers.reduce((acc, beer) => {
+      acc[beer.id] = beer;
+      return acc;
+    }, {});
+    
+    return calculateBarDistances(location, beersRecord);
+  }, [location, groupedBeers]);
 
     return (
         <View style={{ backgroundColor: theme.colors.background,
