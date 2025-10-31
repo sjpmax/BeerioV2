@@ -1,15 +1,12 @@
-import useLocation, { LocationStatus } from '@/hooks/useLocation';
+import { LocationStatus } from '@/hooks/useLocation'; // Only import the type
 import { calculateBarDistances, openInMaps } from '@/utils/mapUtils';
 import { GroupedBeer } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import React, { useMemo, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
-import { Icon, List } from 'react-native-paper';
+import { Icon, List } from 'react-native-paper'; // Import Avatar properly
 import { phillyColors } from '../constants/colors';
-
-const { Avatar } = require('react-native-paper');
-const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
 
 interface BeerSuggestionProps {
     groupedBeers: Record<string, GroupedBeer>;
@@ -21,10 +18,10 @@ interface BeerSuggestionProps {
 
 export default function BeerCardView({ 
     groupedBeers,
-     theme, 
-     location, 
-     locationStatus, 
-     getDistanceMessage 
+    theme, 
+    location, 
+    locationStatus, 
+    getDistanceMessage 
 }: BeerSuggestionProps) {
 
 

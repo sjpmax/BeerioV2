@@ -1,5 +1,6 @@
 import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
+import BeerMapView from '@/components/_beer_map_view';
 import useLocation from '@/hooks/useLocation';
 import { BeerSuggestion, GroupedBeer, searchLocalBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ import { IconButton, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-
 export default function BeersScreen() {
 
     const [beerView, setBeerView] = useState("Cards");
-    const beerViewTitles = ['Cards', 'Table'];
+    const beerViewTitles = ['Cards', 'Table', 'Map'];
     const [beers, setBeers] = useState<BeerSuggestion[]>([]);
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});
 
@@ -18,7 +19,7 @@ export default function BeersScreen() {
         setBeerView(value);
     }
     const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
-  
+
     const theme = useTheme();
 
     useEffect(() => {
@@ -30,7 +31,7 @@ export default function BeersScreen() {
 
             console.log('Fetched beers:', sorted);
             const grouped = sorted.reduce((acc, beer) => {
-                
+
                 const key = beer.name; // Use beer name as key
 
                 if (!acc[key]) {
@@ -77,28 +78,61 @@ export default function BeersScreen() {
     const renderLocationBanner = () => {
         if (status === 'permission-denied' || status === 'error' || status === 'unavailable') {
             return (
-                <TouchableOpacity 
-                    onPress={refreshLocation} 
-                    style={{ 
-                        padding: 10, 
+                <TouchableOpacity
+                    onPress={refreshLocation}
+                    style={{
+                        padding: 10,
                         backgroundColor: 'rgba(231, 76, 60, 0.2)',
                         borderRadius: 4,
                         margin: 10
                     }}
                 >
                     <Text style={{ color: '#e74c3c', textAlign: 'center' }}>
-                        {status === 'permission-denied' 
-                            ? 'Location permission needed for distances. Tap to request.' 
+                        {status === 'permission-denied'
+                            ? 'Location permission needed for distances. Tap to request.'
                             : status === 'unavailable'
-                            ? 'Location services disabled. Please enable in settings.'
-                            : 'Unable to get location. Tap to retry.'}
+                                ? 'Location services disabled. Please enable in settings.'
+                                : 'Unable to get location. Tap to retry.'}
                     </Text>
                 </TouchableOpacity>
             );
         }
-        
+
         return null;
     };
+
+    const viewComponents = {
+        "Cards": (
+            <BeerCardView
+                groupedBeers={groupedBeers}
+                theme={theme}
+                location={location}
+                locationStatus={status}
+                getDistanceMessage={getDistanceMessage}
+            />
+        ),
+        "Table": (
+            <BeerTableView
+                groupedBeers={Object.values(groupedBeers)}
+                theme={theme}
+                location={location}
+                locationStatus={status}
+                getDistanceMessage={getDistanceMessage}
+            />
+        ),
+        "Map": (
+            <BeerMapView
+                groupedBeers={groupedBeers}
+                theme={theme}
+                location={location}
+                locationStatus={status}
+                getDistanceMessage={getDistanceMessage}
+            />
+        )
+        
+    };
+
+    
 
     return (
         <View
@@ -108,7 +142,7 @@ export default function BeersScreen() {
         >
             <View style={{ flexDirection: 'row', marginTop: 25 }}>
                 <View style={{ flex: 1 }}></View>
-                <View style={{ flex: 1 }} >
+                <View style={{ flex: 3 }} >
                     <SegmentedButtons
                         value={beerView}
                         onValueChange={handleBeerViewChange}
@@ -157,24 +191,12 @@ export default function BeersScreen() {
                 </View>
             </View>
 
-            {beerView === "Cards" ? (
-    <BeerCardView 
-        groupedBeers={groupedBeers} 
-        theme={theme} 
-        location={location}
-        locationStatus={status}
-        getDistanceMessage={getDistanceMessage}
-    />
-) : (
-    <BeerTableView 
-        groupedBeers={Object.values(groupedBeers)} 
-        theme={theme}
-        location={location}
-        locationStatus={status}
-        getDistanceMessage={getDistanceMessage}
-    />
-)}
-  <Portal>
+ {renderLocationBanner()}
+
+        {viewComponents[beerView] || viewComponents["Cards"]}
+
+
+            <Portal>
                 <Snackbar
                     visible={snackVisible}
                     onDismiss={() => setSnackVisible(false)}
