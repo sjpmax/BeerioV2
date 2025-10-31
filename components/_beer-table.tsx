@@ -13,8 +13,10 @@ interface BeerSuggestionProps {
 export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
 
   const [expandedRows, setExpandedRows] = useState(new Set());
-      const { location, requestPermission } = useLocation();
-  
+  const { location, loading, errorMsg, requestPermissionAndGetLocation } = useLocation();
+    
+  const [locationStatus, setLocationStatus] = useState('waiting');
+
   const toggleRow = (id) => {
     const newExpandedRows = new Set(expandedRows);
     if (newExpandedRows.has(id)) {
@@ -26,15 +28,21 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
   };
 
   
-  const distances = useMemo(() => {
-    // Convert array to record format for calculateBarDistances
-    const beersRecord = groupedBeers.reduce((acc, beer) => {
-      acc[beer.id] = beer;
-      return acc;
-    }, {});
-    
-    return calculateBarDistances(location, beersRecord);
-  }, [location, groupedBeers]);
+// In BeerTable.tsx, add console.logs to debug
+const distances = useMemo(() => {
+  // Convert array to record format for calculateBarDistances
+  const beersRecord = groupedBeers.reduce((acc, beer) => {
+    acc[beer.id] = beer;
+    return acc;
+  }, {});
+  
+  console.log('BeerTable - Location:', location);
+  console.log('BeerTable - BeersRecord:', beersRecord);
+  
+  const result = calculateBarDistances(location, beersRecord);
+  console.log('BeerTable - Calculated distances:', result);
+  return result;
+}, [location, groupedBeers]);
 
     return (
         <View style={{ backgroundColor: theme.colors.background,
@@ -47,7 +55,7 @@ export default function BeerTable({groupedBeers, theme}: BeerSuggestionProps) {
                 renderItem={({ item, index }) => (
                     <View key={item.id} >
                         <View>
-                            <BeerTableRow groupedBeers={item} theme={theme} rowID={index} isExpanded={expandedRows.has(item.id)} onToggle={() => toggleRow(item.id)} distances={distances[item.id]} />
+                            <BeerTableRow groupedBeers={item} theme={theme} rowID={index} isExpanded={expandedRows.has(item.id)} onToggle={() => toggleRow(item.id)} distances={distances} />
                         </View>
                     </View>
                 )}

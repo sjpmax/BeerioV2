@@ -1,26 +1,37 @@
+import useLocation, { LocationStatus } from '@/hooks/useLocation';
 import { calculateBarDistances, openInMaps } from '@/utils/mapUtils';
 import { GroupedBeer } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
+import * as Location from 'expo-location';
 import React, { useMemo, useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { Icon, List } from 'react-native-paper';
 import { phillyColors } from '../constants/colors';
-import useLocation from '../hooks/useLocation';
+
 const { Avatar } = require('react-native-paper');
+const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
 
 interface BeerSuggestionProps {
     groupedBeers: Record<string, GroupedBeer>;
-    theme: Theme;
+    theme: Theme; 
+    location: Location.LocationObject | null;
+    locationStatus: LocationStatus;
+    getDistanceMessage: (lat?: number | null, long?: number | null) => string;
 }
 
+export default function BeerCardView({ 
+    groupedBeers,
+     theme, 
+     location, 
+     locationStatus, 
+     getDistanceMessage 
+}: BeerSuggestionProps) {
 
-export default function BeerCardView({ groupedBeers, theme }: BeerSuggestionProps) {
 
     const [expanded, setExpanded] = useState<boolean>(true);
     const [expandedIds, setExpandedIds] = useState(new Set());
     const truncateText = (input: string, maxLength: number): string => input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
     const handlePress = () => setExpanded(!expanded);
-    const { location, requestPermission } = useLocation();
 
    
 

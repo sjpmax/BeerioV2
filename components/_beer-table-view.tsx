@@ -1,15 +1,28 @@
-import { BeerSuggestion } from '@/utils/supabase';
+import useLocation, { LocationStatus } from '@/hooks/useLocation';
+import { GroupedBeer } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
+import * as Location from 'expo-location';
 import React from 'react';
 import { View } from 'react-native';
 import BeerTable from './_beer-table';
 
+const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
+
 interface BeerSuggestionProps {
-    groupedBeers: BeerSuggestion[];
-    theme: Theme;
+    groupedBeers: Record<string, GroupedBeer>;
+    theme: Theme; 
+    location: Location.LocationObject | null;
+    locationStatus: LocationStatus;
+    getDistanceMessage: (lat?: number | null, long?: number | null) => string;
 }
 
-export default function BeerTableView({ groupedBeers, theme }: BeerSuggestionProps) {
+export default function BeerTableView({ 
+    groupedBeers,
+     theme, 
+     location, 
+     locationStatus, 
+     getDistanceMessage 
+}: BeerSuggestionProps) {
 
     console.log('Rendering BeerTableView with beers:', Object.values(groupedBeers));
 

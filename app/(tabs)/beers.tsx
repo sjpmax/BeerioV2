@@ -1,8 +1,9 @@
 import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
+import useLocation from '@/hooks/useLocation';
 import { BeerSuggestion, GroupedBeer, searchLocalBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { IconButton, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
 
 export default function BeersScreen() {
@@ -16,7 +17,8 @@ export default function BeersScreen() {
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
-
+    const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
+  
     const theme = useTheme();
 
     useEffect(() => {
@@ -72,7 +74,31 @@ export default function BeersScreen() {
         }
         fetchBeers();
     }, []);
-
+    const renderLocationBanner = () => {
+        if (status === 'permission-denied' || status === 'error' || status === 'unavailable') {
+            return (
+                <TouchableOpacity 
+                    onPress={refreshLocation} 
+                    style={{ 
+                        padding: 10, 
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderRadius: 4,
+                        margin: 10
+                    }}
+                >
+                    <Text style={{ color: '#e74c3c', textAlign: 'center' }}>
+                        {status === 'permission-denied' 
+                            ? 'Location permission needed for distances. Tap to request.' 
+                            : status === 'unavailable'
+                            ? 'Location services disabled. Please enable in settings.'
+                            : 'Unable to get location. Tap to retry.'}
+                    </Text>
+                </TouchableOpacity>
+            );
+        }
+        
+        return null;
+    };
 
     return (
         <View
@@ -132,11 +158,32 @@ export default function BeersScreen() {
             </View>
 
             {beerView === 'Table' ? (
-                <BeerTableView groupedBeers={groupedBeers} theme={theme} />
+                <BeerTableView 
+                    groupedBeers={groupedBeers} 
+                    theme={theme} 
+                    location={location}
+                    locationStatus={status}
+                    getDistanceMessage={getDistanceMessage}/>
             ) : (
-                <BeerCardView  groupedBeers={groupedBeers} theme={theme} />
+                <BeerCardView  
+                    groupedBeers={groupedBeers} 
+                    theme={theme} 
+                    location={location}
+                    locationStatus={status}
+                    getDistanceMessage={getDistanceMessage}/>
             )}
-
+  <Portal>
+                <Snackbar
+                    visible={snackVisible}
+                    onDismiss={() => setSnackVisible(false)}
+                    action={{
+                        label: 'OK',
+                        onPress: () => setSnackVisible(false),
+                    }}
+                >
+                    Unable to refresh beers
+                </Snackbar>
+            </Portal>
         </View>
     );
 }
