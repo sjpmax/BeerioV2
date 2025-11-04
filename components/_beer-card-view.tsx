@@ -113,8 +113,9 @@ const toggleAccordion = (id: string) => {
             return newState;
         });
     };
-
-    const distances = calculateDistancesFromArray(location, groupedBeers);
+// Make sure groupedBeers is an array before passing it
+const beersArray = Array.isArray(groupedBeers) ? groupedBeers : Object.values(groupedBeers);
+const distances = calculateDistancesFromArray(location, beersArray);
 
     return (
 

@@ -95,11 +95,30 @@ export const calculateBarDistances = (
   return result;
 };
 
-export const calculateDistancesFromArray = (location: LocationObject | null, beersArray: GroupedBeer[]): Record<string, string | null> => { 
-  const beersRecord = beersArray.reduce((acc, beer) => {
-    acc[beer.id] = beer;
-    return acc;
-  }, {} as Record<string, GroupedBeer>);
-  
-  return calculateBarDistances(location, beersRecord);
-}
+export const calculateDistancesFromArray = (
+     location: LocationObject | null, 
+     beersArray: any // Accept any for now to debug
+   ): Record<string, string | null> => { 
+     // Check if beersArray is an array and log what it actually is
+     console.log('beersArray type:', typeof beersArray, Array.isArray(beersArray));
+     console.log('beersArray value:', beersArray);
+   
+     // Handle both array and record formats
+     if (!beersArray) return {};
+   
+     if (Array.isArray(beersArray)) {
+       // If it's already an array, use it directly
+       const beersRecord = beersArray.reduce((acc, beer) => {
+         acc[beer.id] = beer;
+         return acc;
+       }, {} as Record<string, GroupedBeer>);
+       
+       return calculateBarDistances(location, beersRecord);
+     } else if (typeof beersArray === 'object') {
+       // If it's already an object/record, use it directly
+       return calculateBarDistances(location, beersArray as Record<string, GroupedBeer>);
+     }
+   
+     // If we can't process it, return empty result
+     return {};
+   }
