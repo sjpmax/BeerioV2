@@ -1,31 +1,24 @@
 import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
 import BeerMapView from '@/components/_beer_map_view';
+import BeerSelectFilter from '@/components/_beer_select_filter';
 import useLocation from '@/hooks/useLocation';
-import { BeerSuggestion, GroupedBeer, searchLocalBeers } from '@/utils/supabase';
+import { GroupedBeer, searchLocalBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Button, IconButton, Menu, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
+import { IconButton, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
 
 export default function BeersScreen() {
 
     const [beerView, setBeerView] = useState("Cards");
     const beerViewTitles = ['Cards', 'Table', 'Map'];
-    const [beers, setBeers] = useState<BeerSuggestion[]>([]);
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});
      
-  const { colors } = useTheme();
-  const [visibleMenu, setVisibleMenu] = React.useState(null);
-
-  const openMenu = (menu) => setVisibleMenu(menu);
-  const closeMenu = () => setVisibleMenu(null);
-
     const [snackVisible, setSnackVisible] = useState(false);
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
-    const { location, status, errorMsg, refreshLocation, getDistanceMessage } = useLocation();
-
+    const { location, status,  refreshLocation, getDistanceMessage } = useLocation();
     const theme = useTheme();
 
     useEffect(() => {
@@ -197,98 +190,7 @@ export default function BeersScreen() {
                 </View>
             </View>
 
-     <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        backgroundColor:  '#24324A', // your dark bar background
-        paddingVertical: 8,
-        height: 50,
-      }}
-    >
-      {/* TYPE dropdown */}
-      <Menu
-        visible={visibleMenu === 'type'}
-        onDismiss={closeMenu}
-        anchor={
-          <Button
-            mode="text"
-            textColor="#FFD700"
-            onPress={() => openMenu('type')}
-            contentStyle={{ flexDirection: 'row-reverse' }}
-            style={{ flex: 1, height: '100%', paddingBottom: 2
-            }}
-          >
-            Type ▾
-          </Button>
-        }
-      >
-        <Menu.Item onPress={closeMenu} title="IPA" />
-        <Menu.Item onPress={closeMenu} title="Lager" />
-        <Menu.Item onPress={closeMenu} title="Stout" />
-      </Menu>
-
-      {/* PRICE dropdown */}
-      <Menu
-        visible={visibleMenu === 'price'}
-        onDismiss={closeMenu}
-        anchor={
-          <Button
-            mode="text"
-            textColor="#FFD700"
-            onPress={() => openMenu('price')}
-            contentStyle={{ flexDirection: 'row-reverse' }}
-            style={{ flex: 1 }}
-          >
-            Price ▾
-          </Button>
-        }
-      >
-        <Menu.Item onPress={closeMenu} title="Low → High" />
-        <Menu.Item onPress={closeMenu} title="High → Low" />
-      </Menu>
-
-      {/* ABV dropdown */}
-      <Menu
-        visible={visibleMenu === 'abv'}
-        onDismiss={closeMenu}
-        anchor={
-          <Button
-            mode="text"
-            textColor="#FFD700"
-            onPress={() => openMenu('abv')}
-            contentStyle={{ flexDirection: 'row-reverse' }}
-            style={{ flex: 1 }}
-          >
-            ABV ▾
-          </Button>
-        }
-      >
-        <Menu.Item onPress={closeMenu} title="Low → High" />
-        <Menu.Item onPress={closeMenu} title="High → Low" />
-      </Menu>
-
-      {/* DISTANCE dropdown */}
-      <Menu
-        visible={visibleMenu === 'distance'}
-        onDismiss={closeMenu}
-        anchor={
-          <Button
-            mode="text"
-            textColor="#FFD700"
-            onPress={() => openMenu('distance')}
-            contentStyle={{ flexDirection: 'row-reverse' }}
-            style={{ flex: 1 }}
-          >
-            Distance ▾
-          </Button>
-        }
-      >
-        <Menu.Item onPress={closeMenu} title="Nearest" />
-        <Menu.Item onPress={closeMenu} title="Farthest" />
-      </Menu>
-    </View>
+     <BeerSelectFilter />
 
  {renderLocationBanner()}
 
