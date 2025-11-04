@@ -1,9 +1,9 @@
 import { LocationStatus } from '@/hooks/useLocation'; // Only import the type
-import { calculateBarDistances, openInMaps } from '@/utils/mapUtils';
+import { calculateDistancesFromArray, openInMaps } from '@/utils/mapUtils';
 import { GroupedBeer } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import * as Location from 'expo-location';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { FlatList, Text, View } from 'react-native';
 import { Icon, List } from 'react-native-paper'; // Import Avatar properly
 import { phillyColors } from '../constants/colors';
@@ -114,10 +114,7 @@ const toggleAccordion = (id: string) => {
         });
     };
 
-    const distances = useMemo(() => 
-    calculateBarDistances(location, groupedBeers), 
-    [location, groupedBeers]
-);
+    const distances = calculateDistancesFromArray(location, groupedBeers);
 
     return (
 

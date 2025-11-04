@@ -1,5 +1,5 @@
-import { Linking, Platform } from 'react-native';
 import { LocationObject } from 'expo-location';
+import { Linking, Platform } from 'react-native';
 import { GroupedBeer } from './supabase';
 
 /**
@@ -94,4 +94,12 @@ export const calculateBarDistances = (
 
   return result;
 };
-    
+
+export const calculateDistancesFromArray = (location: LocationObject | null, beersArray: GroupedBeer[]): Record<string, string | null> => { 
+  const beersRecord = beersArray.reduce((acc, beer) => {
+    acc[beer.id] = beer;
+    return acc;
+  }, {} as Record<string, GroupedBeer>);
+  
+  return calculateBarDistances(location, beersRecord);
+}

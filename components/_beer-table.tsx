@@ -1,7 +1,7 @@
 import { LocationStatus } from '@/hooks/useLocation';
-import { calculateBarDistances } from '@/utils/mapUtils';
+import { calculateDistancesFromArray } from '@/utils/mapUtils';
 import * as Location from 'expo-location';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { FlatList, View } from 'react-native';
 import BeerTableHeader from './_beer-table-header';
 import BeerTableRow from './_beer-table-row';
@@ -33,16 +33,9 @@ export default function BeerTable({
     setExpandedRows(newExpandedRows);
   };
 
-  // Calculate distances with location from props
-  const distances = useMemo(() => {
-    // Convert array to record format for calculateBarDistances
-    const beersRecord = groupedBeers.reduce((acc, beer) => {
-      acc[beer.id] = beer;
-      return acc;
-    }, {});
-    
-    return calculateBarDistances(location, beersRecord);
-  }, [location, groupedBeers]);
+  
+// Then in your component:  
+const distances = calculateDistancesFromArray(location, groupedBeers);
 
   return (
     <View style={{ 
