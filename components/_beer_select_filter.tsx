@@ -1,16 +1,25 @@
 
-
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Menu } from 'react-native-paper';
+import { Button, Icon, Menu } from 'react-native-paper';
 
-const [visibleMenu, setVisibleMenu] = React.useState(null);
+export default function BeerSelectFilter(filters: any, onFilterChange: any) {
+    const [visibleMenu, setVisibleMenu] = React.useState(null);
+    const closeMenu = () => setVisibleMenu(null);
+    const setQuery = (value: string) => {
+        closeMenu();   // Close menu after selection
+        filters.setQuery(value);
+    };
 
-const openMenu = (menu) => setVisibleMenu(menu);
-const closeMenu = () => setVisibleMenu(null);
 
+const openMenu = (menu) => {
+    if (visibleMenu === menu) {
+        setVisibleMenu(null);  // Close if already open
+    } else {
+        setVisibleMenu(menu);  // Open if closed or different menu
+    }
+};
 
-export default function BeerSelectFilter() {
     return (
 
         <View
@@ -20,11 +29,11 @@ export default function BeerSelectFilter() {
                 alignItems: 'center',
                 backgroundColor: '#24324A', // your dark bar background
                 paddingVertical: 8,
-                height: 50,
+                height: 50
             }}
         >
             {/* TYPE dropdown */}
-            <Menu
+             <Menu
                 visible={visibleMenu === 'type'}
                 onDismiss={closeMenu}
                 anchor={
@@ -32,12 +41,10 @@ export default function BeerSelectFilter() {
                         mode="text"
                         textColor="#FFD700"
                         onPress={() => openMenu('type')}
-                        contentStyle={{ flexDirection: 'row-reverse', paddingBottom: 2 }}
-                        style={{
-                            flex: 1, 
-                        }}
+                        contentStyle={{ flexDirection: 'row-reverse' }}
+                        style={{ flex: 1 }}
                     >
-                        Type ▾
+                         <Icon source="glass-tulip" size={16} color="#FFD700" />Type <Icon source="menu-down" size={16} color="#FFD700" />
                     </Button>
                 }
             >
@@ -58,7 +65,7 @@ export default function BeerSelectFilter() {
                         contentStyle={{ flexDirection: 'row-reverse' }}
                         style={{ flex: 1 }}
                     >
-                        Price ▾
+                        <Icon source="currency-usd" size={16} color="#FFD700" />Price <Icon source="menu-down" size={16} color="#FFD700" />
                     </Button>
                 }
             >
@@ -73,12 +80,22 @@ export default function BeerSelectFilter() {
                 anchor={
                     <Button
                         mode="text"
+                        dark={true}
+                        buttonrippleColor="#FFD700"
                         textColor="#FFD700"
                         onPress={() => openMenu('abv')}
-                        contentStyle={{ flexDirection: 'row-reverse' }}
-                        style={{ flex: 1 }}
+                        contentStyle={{ flexDirection: 'row-reverse', }}
+                        style={{ flex: 1,
+                            borderRight: '1px solid #555',
+                            borderLeft: '1px solid #555',
+                            paddingHorizontal: 10
+                        }}
+                        labelStyle={{ 
+                            fontSize: 14,
+                            letterSpacing: 0.5  // Add slight letter spacing
+                        }}
                     >
-                        ABV ▾
+                             <Icon source="water-percent" size={20} color="#FFD700" />ABV <Icon source="menu-down" size={18} color="#FFD700" />
                     </Button>
                 }
             >
@@ -98,7 +115,7 @@ export default function BeerSelectFilter() {
                         contentStyle={{ flexDirection: 'row-reverse' }}
                         style={{ flex: 1 }}
                     >
-                        Distance ▾
+                        <Icon source="map-marker-distance" size={16} color="#FFD700" /> Distance <Icon source="menu-down" size={16} color="#FFD700" />
                     </Button>
                 }
             >

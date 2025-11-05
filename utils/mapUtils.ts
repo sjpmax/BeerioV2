@@ -99,9 +99,6 @@ export const calculateDistancesFromArray = (
      location: LocationObject | null, 
      beersArray: any // Accept any for now to debug
    ): Record<string, string | null> => { 
-     // Check if beersArray is an array and log what it actually is
-     console.log('beersArray type:', typeof beersArray, Array.isArray(beersArray));
-     console.log('beersArray value:', beersArray);
    
      // Handle both array and record formats
      if (!beersArray) return {};

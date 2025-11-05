@@ -21,7 +21,6 @@ export default function BeerTableView({
     locationStatus, 
     getDistanceMessage 
 }: BeerSuggestionProps) {
-    console.log('Rendering BeerTableView with beers:', groupedBeers);
 
     return (
         <View style={{ backgroundColor: theme.colors.background}}>

@@ -9,20 +9,19 @@ import MapView, { Marker } from 'react-native-maps';
 
 interface BeerSuggestionProps {
     groupedBeers: Record<string, GroupedBeer>;
-    theme: Theme; 
+    theme: Theme;
     location: Location.LocationObject | null;
     locationStatus: LocationStatus;
     getDistanceMessage: (lat?: number | null, long?: number | null) => string;
 }
 
-export default function BeerMapView({ 
-    groupedBeers, 
+export default function BeerMapView({
+    groupedBeers,
     theme,
     location,
     locationStatus,
     getDistanceMessage
 }: BeerSuggestionProps) {
-console.log('Rendering BeerMapView with beers:', groupedBeers);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -35,21 +34,29 @@ console.log('Rendering BeerMapView with beers:', groupedBeers);
                     longitudeDelta: 0.0421,
                 }}
             >
-                {Object.values(groupedBeers).map((beerGroup, index) => (
-                    beerGroup.locations.map((loc) => (
+                {Object.values(groupedBeers).map((beerGroup, index) => {
+                    console.log('Rendering marker for beerGroup:', beerGroup);
+                    const markerBar = beerGroup.locations[0];
+                    console.log('Using location:', markerBar);
+                    if (!markerBar || markerBar.bar_lat == null || markerBar.bar_long == null) {
+                        console.warn('Skipping beerGroup due to missing location:', beerGroup);
+                        return null;
+                    }
+                    return (
                         <Marker
                             key={index}
                             coordinate={{
-                                latitude: loc.bar_lat,
-                                longitude: loc.bar_long,
+                                latitude: markerBar.bar_lat,
+                                longitude: markerBar.bar_long,
                             }}
                             title={beerGroup.name}
-                            description={`${loc.bar_name} - ${getDistanceMessage(loc.bar_lat, loc.bar_long)}`}  
+                            description={`${markerBar.bar_name} - ${getDistanceMessage(markerBar.bar_lat, markerBar.bar_long)}`}
                         />
-                    ))
-                ))}
+                    );
+                })}
+                
             </MapView>
-            
+
         </View>
     );
 }

@@ -13,13 +13,20 @@ export default function BeersScreen() {
     const [beerView, setBeerView] = useState("Cards");
     const beerViewTitles = ['Cards', 'Table', 'Map'];
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});
-     
+    const [filters, setFilters] = useState({ type: '', price: '', abv: '', distance: '' });
     const [snackVisible, setSnackVisible] = useState(false);
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
     const { location, status,  refreshLocation, getDistanceMessage } = useLocation();
     const theme = useTheme();
+
+    const handleFilterChange = (filterType: string, value: string) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [filterType]: value,
+        }));
+    }
 
     useEffect(() => {
         async function fetchBeers() {
@@ -190,7 +197,7 @@ export default function BeersScreen() {
                 </View>
             </View>
 
-     <BeerSelectFilter />
+     <BeerSelectFilter filters={filters} onFilterChange={handleFilterChange} />
 
  {renderLocationBanner()}
 

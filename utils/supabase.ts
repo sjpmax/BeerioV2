@@ -65,8 +65,9 @@ export async function searchLocalBeers(query: string): Promise<BeerSuggestion[]>
     try {
         const { data, error } = await supabase
             .from('beer_offerings')
-            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat');
-        console.log('Local search data:', data);
+            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat')
+            .ilike('type', `%${query}%`)
+            .limit(50);
         if (error) throw error;
 
         return data.map(beer => ({
