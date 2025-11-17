@@ -1,12 +1,13 @@
 import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
+import BeerFilterModal from '@/components/_beer_filter_modal';
 import BeerMapView from '@/components/_beer_map_view';
-import BeerSelectFilter from '@/components/_beer_select_filter';
 import useLocation from '@/hooks/useLocation';
 import { GroupedBeer, searchLocalBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { IconButton, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
+import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
+
 
 export default function BeersScreen() {
 
@@ -18,8 +19,19 @@ export default function BeersScreen() {
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
-    const { location, status,  refreshLocation, getDistanceMessage } = useLocation();
+    const { location, status, refreshLocation, getDistanceMessage } = useLocation();
     const theme = useTheme();
+    const [showFilters, setShowFilters] = useState(false);
+    const modalStyles = {
+        backgroundColor: theme.colors.surface,
+        padding: 20,
+        margin: 20,
+        borderRadius: 8,
+    };
+
+    const [selectedTypes, setSelectedTypes] = useState(new Set());
+const [priceFilter, setPriceFilter] = useState(20);
+const [distanceFilter, setDistanceFilter] = useState(2);
 
     const handleFilterChange = (filterType: string, value: string) => {
         setFilters((prevFilters) => ({
@@ -34,8 +46,6 @@ export default function BeersScreen() {
             const sorted = [...results].sort((a, b) =>
                 (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
             );
-
-            console.log('Fetched beers:', sorted);
             const grouped = sorted.reduce((acc, beer) => {
 
                 const key = beer.name; // Use beer name as key
@@ -46,6 +56,7 @@ export default function BeersScreen() {
                         name: beer.name,
                         abv: beer.abv,
                         type: beer.type,
+                        type_group: beer.type_group,
                         brewery: beer.brewery, // This should now work if your interface matches
                         best_cost_per_oz: beer.cost_per_alcohol_oz,
                         best_size: beer.size,
@@ -135,10 +146,16 @@ export default function BeersScreen() {
                 getDistanceMessage={getDistanceMessage}
             />
         )
-        
-    };
 
-    
+    };
+    // Initialize selectedTypes after groupedBeers is loaded
+    useEffect(() => {
+        if (Object.keys(groupedBeers).length > 0) {
+            const allTypes = new Set(Object.values(groupedBeers).map(beer => beer.type_group));
+            setSelectedTypes(allTypes);
+        }
+    }, [groupedBeers]);
+
 
     return (
         <View
@@ -146,6 +163,9 @@ export default function BeersScreen() {
             //contentContainerStyle={{ justifyContent: 'center' }}
             style={{ backgroundColor: theme.colors.background }}
         >
+            <Button style={{ marginTop: 30 }} onPress={showFilters ? () => setShowFilters(false) : () => setShowFilters(true)} mode="outlined">
+                Filters
+            </Button>
             <View style={{ flexDirection: 'row', marginTop: 25 }}>
                 <View style={{ flex: 1 }}></View>
                 <View style={{ flex: 3 }} >
@@ -196,12 +216,31 @@ export default function BeersScreen() {
                         </Snackbar></Portal>
                 </View>
             </View>
+            <Portal>
+                <Modal
+                    visible={showFilters}
+                    onDismiss={() => setShowFilters(false)}
+                    contentContainerStyle={modalStyles}
+                >
+                    <BeerFilterModal
+                        modalVisible={showFilters}
+                        hideModal={() => setShowFilters(false)}
+                        groupedBeers={groupedBeers}
+                        selectedTypes={selectedTypes}
+                        setSelectedTypes={setSelectedTypes}
+                        priceFilter={priceFilter}
+                        setPriceFilter={setPriceFilter}
+                        distanceFilter={distanceFilter}
+                        setDistanceFilter={setDistanceFilter}
+                        theme={theme}
+                    />
 
-     <BeerSelectFilter filters={filters} onFilterChange={handleFilterChange} />
+                </Modal>
+            </Portal>
 
- {renderLocationBanner()}
+            {renderLocationBanner()}
 
-        {viewComponents[beerView] || viewComponents["Cards"]}
+            {viewComponents[beerView] || viewComponents["Cards"]}
 
 
             <Portal>

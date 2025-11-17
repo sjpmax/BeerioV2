@@ -35,9 +35,7 @@ export default function BeerMapView({
                 }}
             >
                 {Object.values(groupedBeers).map((beerGroup, index) => {
-                    console.log('Rendering marker for beerGroup:', beerGroup);
                     const markerBar = beerGroup.locations[0];
-                    console.log('Using location:', markerBar);
                     if (!markerBar || markerBar.bar_lat == null || markerBar.bar_long == null) {
                         console.warn('Skipping beerGroup due to missing location:', beerGroup);
                         return null;
