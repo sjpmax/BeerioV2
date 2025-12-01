@@ -5,7 +5,7 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-paper';
 
-const truncateText = (input: string, maxLength: number): string => 
+const truncateText = (input: string, maxLength: number): string =>
   input.length > maxLength ? `${input.substring(0, maxLength)}…` : input;
 
 // Updated interface to match all props
@@ -20,12 +20,12 @@ interface BeerSuggestionProps {
   getDistanceMessage: (lat?: number | null, long?: number | null) => string;
 }
 
-export default function BeerTableRow({ 
-  groupedBeers, 
-  theme, 
-  isExpanded, 
-  onToggle, 
-  rowID, 
+export default function BeerTableRow({
+  groupedBeers,
+  theme,
+  isExpanded,
+  onToggle,
+  rowID,
   distances,
   locationStatus,
   getDistanceMessage
@@ -61,7 +61,9 @@ export default function BeerTableRow({
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text style={{ flex: 1, color: phillyColors.gold }}>{groupedBeers.best_cost_per_oz}</Text>
         </View>
-
+        <View style={{ flex: 1 }}>
+          <Text style={{ flex: 1, color: phillyColors.gold }}>{groupedBeers.locations[0].serving_type}</Text>
+        </View>
         <View style={{ flex: 1 }}>
           <Text style={{ flex: 1, color: phillyColors.gold }}>{groupedBeers.locations[0].bar_name}</Text>
         </View>
@@ -97,26 +99,26 @@ export default function BeerTableRow({
           <View style={{ flexDirection: 'row' }}>
             <View style={{ flex: 1 }}></View>
             <View style={{ flex: 9, paddingLeft: 15, backgroundColor: 'rgba(255,255,255,0.05)' }}>
-                {groupedBeers.locations.map((location: any, idx: number) => (
-            <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
-              <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
-                location.bar_lat,
-                location.bar_long, 
-                groupedBeers.name
-              )}>
-                <Icon source="map-marker" size={16} color={phillyColors.gold} />
-                {location.bar_name || 'N/A'}
-                
-                {/* Use the getDistanceMessage function */}
-                {` ${getDistanceMessage(location.bar_lat, location.bar_long)}`}
-              </Text>
-              <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>
-              <Text style={{ flex: 1, color: '#AAA' }}>{location.size}oz</Text>
-              <Text style={{ flex: 1, color: '#AAA' }}>
-                ${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/oz
-              </Text>
-            </View>
-          ))}
+              {groupedBeers.locations.map((location: any, idx: number) => (
+                <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
+                  <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
+                    location.bar_lat,
+                    location.bar_long,
+                    groupedBeers.name
+                  )}>
+                    <Icon source="map-marker" size={16} color={phillyColors.gold} />
+                    {location.bar_name || 'N/A'}
+
+                    {/* Use the getDistanceMessage function */}
+                    {` ${getDistanceMessage(location.bar_lat, location.bar_long)}`}
+                  </Text>
+                  <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>
+                  <Text style={{ flex: 1, color: '#AAA' }}>{location.size}oz</Text>
+                  <Text style={{ flex: 1, color: '#AAA' }}>
+                    ${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/oz
+                  </Text>
+                </View>
+              ))}
             </View>
           </View>
         </View>

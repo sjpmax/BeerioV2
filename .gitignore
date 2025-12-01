@@ -43,3 +43,5 @@ app-example
 /android
 /.vs
 .env
+package.json
+package-lock.json

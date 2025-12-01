@@ -3,17 +3,16 @@ import BeerTableView from '@/components/_beer-table-view';
 import BeerFilterModal from '@/components/_beer_filter_modal';
 import BeerMapView from '@/components/_beer_map_view';
 import useLocation from '@/hooks/useLocation';
-import { GroupedBeer, searchLocalBeers } from '@/utils/supabase';
+import { GroupedBeer, searchBeerioDB } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
 
-
 export default function BeersScreen() {
-
     const [beerView, setBeerView] = useState("Cards");
     const beerViewTitles = ['Cards', 'Table', 'Map'];
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});
+    const [filteredBeers, setFilteredBeers] = useState<GroupedBeer[]>([]);
     const [filters, setFilters] = useState({ type: '', price: '', abv: '', distance: '' });
     const [snackVisible, setSnackVisible] = useState(false);
     const handleBeerViewChange = (value: string) => {
@@ -28,10 +27,10 @@ export default function BeersScreen() {
         margin: 20,
         borderRadius: 8,
     };
-
     const [selectedTypes, setSelectedTypes] = useState(new Set());
-const [priceFilter, setPriceFilter] = useState(20);
-const [distanceFilter, setDistanceFilter] = useState(2);
+    const [servingTypes, setServingTypes] = useState(new Set(["individual"]));
+    const [priceFilter, setPriceFilter] = useState(20);
+    const [distanceFilter, setDistanceFilter] = useState(.5);
 
     const handleFilterChange = (filterType: string, value: string) => {
         setFilters((prevFilters) => ({
@@ -42,7 +41,7 @@ const [distanceFilter, setDistanceFilter] = useState(2);
 
     useEffect(() => {
         async function fetchBeers() {
-            const results = await searchLocalBeers('');
+            const results = await searchBeerioDB('');
             const sorted = [...results].sort((a, b) =>
                 (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
             );
@@ -57,6 +56,8 @@ const [distanceFilter, setDistanceFilter] = useState(2);
                         abv: beer.abv,
                         type: beer.type,
                         type_group: beer.type_group,
+                        serving_type: beer.serving_type,
+                        serving_description: beer.serving_description,
                         brewery: beer.brewery, // This should now work if your interface matches
                         best_cost_per_oz: beer.cost_per_alcohol_oz,
                         best_size: beer.size,
@@ -83,6 +84,8 @@ const [distanceFilter, setDistanceFilter] = useState(2);
                     cost_per_alcohol_oz: beer.cost_per_alcohol_oz,
                     bar_address: beer.bar_address,
                     size: beer.size,
+                    serving_type: beer.serving_type,
+                    serving_description: beer.serving_description,
                 });
 
                 return acc;
@@ -92,6 +95,45 @@ const [distanceFilter, setDistanceFilter] = useState(2);
         }
         fetchBeers();
     }, []);
+
+    // One useEffect that responds to any filter change
+    useEffect(() => {
+        const filteredBeers = Object.values(groupedBeers).filter(beer => {            
+            // Serving type filter 
+            // Individual type includes "Can", "Bottle", "Draft", "Nitro", "Cask"
+             if (!servingTypes.has("individual")){
+                if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type || "")) return false;
+            }
+            // Group type includes "Pitcher", "Growler", "Crowler", "Bucket", "Tower"
+            if (!servingTypes.has("group")){
+                if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type || "")) return false;
+            }
+
+            //console.log("filtering beers based on servingTypes:", servingTypes);
+            console.log("beer: ", beer);
+
+            // Price filter
+            if (beer.best_price && beer.best_price > priceFilter) return false;
+
+            // Beer type filter  
+            if (!selectedTypes.has(beer.type_group)) 
+                return false;
+
+            
+            
+            
+           
+            // Distance filter (if location available)
+            // if (distance > distanceFilter) return false;
+
+            return true;
+        });
+
+        setFilteredBeers(filteredBeers);
+        console.log("filteredBeers: ", filteredBeers.length, " ", filteredBeers);
+    }, [groupedBeers, priceFilter, selectedTypes, servingTypes, distanceFilter, location]);
+
+
     const renderLocationBanner = () => {
         if (status === 'permission-denied' || status === 'error' || status === 'unavailable') {
             return (
@@ -121,7 +163,7 @@ const [distanceFilter, setDistanceFilter] = useState(2);
     const viewComponents = {
         "Cards": (
             <BeerCardView
-                groupedBeers={groupedBeers}
+                groupedBeers={filteredBeers}
                 theme={theme}
                 location={location}
                 locationStatus={status}
@@ -130,7 +172,7 @@ const [distanceFilter, setDistanceFilter] = useState(2);
         ),
         "Table": (
             <BeerTableView
-                groupedBeers={Object.values(groupedBeers)}
+                groupedBeers={Object.values(filteredBeers)}
                 theme={theme}
                 location={location}
                 locationStatus={status}
@@ -139,7 +181,7 @@ const [distanceFilter, setDistanceFilter] = useState(2);
         ),
         "Map": (
             <BeerMapView
-                groupedBeers={groupedBeers}
+                groupedBeers={filteredBeers}
                 theme={theme}
                 location={location}
                 locationStatus={status}
@@ -228,6 +270,8 @@ const [distanceFilter, setDistanceFilter] = useState(2);
                         groupedBeers={groupedBeers}
                         selectedTypes={selectedTypes}
                         setSelectedTypes={setSelectedTypes}
+                        servingTypes={servingTypes}
+                        setServingTypes={setServingTypes}
                         priceFilter={priceFilter}
                         setPriceFilter={setPriceFilter}
                         distanceFilter={distanceFilter}

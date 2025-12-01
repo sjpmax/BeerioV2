@@ -23,6 +23,8 @@ export interface BeerSuggestion {
     bar_address?: string;
     bar_long?: number | null;
     bar_lat?: number | null;
+    serving_type?: string;
+    serving_description?: string;
 }
 
 
@@ -42,6 +44,8 @@ export interface GroupedBeer {
     abv: string;
     type: string;
     type_group?: string;
+    serving_type?: string;
+    serving_description?: string;
     brewery?: string;
     source: 'beerdb' | 'local';
     best_cost_per_oz?: number;
@@ -63,15 +67,17 @@ export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
 });
 
 //looks at our own supabase DB for beers matching the query
-export async function searchLocalBeers(query: string): Promise<BeerSuggestion[]> {
+export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
+
+
     try {
         const { data, error } = await supabase
             .from('beer_offerings')
-            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat, type_group')
+            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat, type_group, serving_type, serving_description')
             .ilike('type', `%${query}%`)
             .limit(50);
         if (error) throw error;
-
+console.log("Hitting up the DB!!!!", data);
         return data.map(beer => ({
             id: beer.beer_id.toString(),
             name: beer.beer_name,
@@ -82,11 +88,14 @@ export async function searchLocalBeers(query: string): Promise<BeerSuggestion[]>
             size: beer.size_oz != null ? Number(beer.size_oz) : 12,
             type: beer.type || 'Unknown',
             type_group: beer.type_group || 'Unknown',
+            serving_type: beer.serving_type || 'Unknown',
+            serving_description: beer.serving_description || 'No description',
             source: 'local' as const,
             bar_name: beer.bar_name,
             bar_address: beer.bar_address,
             bar_long: beer.bar_long,
             bar_lat: beer.bar_lat,
+
         }));
     } catch (error) {
         console.error('Local search error:', error);

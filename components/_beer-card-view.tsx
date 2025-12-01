@@ -56,7 +56,7 @@ export default function BeerCardView({
     // Make sure groupedBeers is an array before passing it
     const beersArray = Array.isArray(groupedBeers) ? groupedBeers : Object.values(groupedBeers);
     const distances = calculateDistancesFromArray(location, beersArray);
-
+    console.log("potato", beersArray);
     return (
         <List.Section title="" className="flex flex-row p-5">
             <FlatList
@@ -116,7 +116,11 @@ export default function BeerCardView({
 
                             {/* First row - Price and Size */}
                             <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-                                <View style={{ flex: 1 }}></View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: phillyColors.gold }}> {item.serving_type}
+                                        <Icon source="information-slab-circle" size={12} color={phillyColors.gold} />
+                                    </Text>
+                                </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={{ color: phillyColors.gold }}> {item.abv}%</Text>
                                 </View>
