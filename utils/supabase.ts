@@ -102,3 +102,55 @@ console.log("Hitting up the DB!!!!", data);
         return [];
     }
 }
+
+export async function searchNearbyBeers(
+  userLat: number, 
+  userLng: number, 
+  radiusMeters: number = 3000,
+  query: string = ''
+): Promise<BeerSuggestion[]> {
+  try {
+    const { data, error } = await supabase
+      .rpc('nearby_beers', { 
+        user_lat: userLat, 
+        user_lng: userLng, 
+        radius_meters: radiusMeters 
+      });
+    
+    if (error) throw error;
+    
+    console.log("Hitting up spatial DB!!!!", data);
+    
+    // Filter by query if provided (since we can't pass query to the function)
+    let filteredData = data;
+    if (query) {
+      filteredData = data.filter(beer => 
+        beer.type?.toLowerCase().includes(query.toLowerCase()) ||
+        beer.beer_name?.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    return filteredData.map(beer => ({
+      id: beer.beer_id.toString(),
+      name: beer.beer_name,
+      cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
+      price: beer.price != null ? Number(beer.price) : 0,
+      abv: beer.abv?.toString() || '0',
+      size: beer.size_oz != null ? Number(beer.size_oz) : 12,
+      type: beer.type || 'Unknown',
+      type_group: beer.type_group || 'Unknown',
+      serving_type: beer.serving_type || 'Unknown',
+      serving_description: beer.serving_description || 'No description',
+      source: 'local' as const,
+      bar_name: beer.bar_name,
+      bar_address: beer.bar_address,
+      bar_long: beer.bar_long,
+      bar_lat: beer.bar_lat,
+      // Add distance for future use
+      distance_meters: beer.distance_meters,
+    }));
+  } catch (error) {
+    console.error('Spatial search error:', error);
+    return [];
+  }
+}

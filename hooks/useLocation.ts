@@ -9,7 +9,7 @@ export default function useLocation() {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [status, setStatus] = useState<LocationStatus>('loading');
-    
+    console.log("useLocation status:", status);
     // Function to get current location
     const getCurrentLocation = async () => {
         try {

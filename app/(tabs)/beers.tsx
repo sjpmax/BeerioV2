@@ -3,7 +3,7 @@ import BeerTableView from '@/components/_beer-table-view';
 import BeerFilterModal from '@/components/_beer_filter_modal';
 import BeerMapView from '@/components/_beer_map_view';
 import useLocation from '@/hooks/useLocation';
-import { GroupedBeer, searchBeerioDB } from '@/utils/supabase';
+import { GroupedBeer, searchNearbyBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
@@ -28,7 +28,7 @@ export default function BeersScreen() {
         borderRadius: 8,
     };
     const [selectedTypes, setSelectedTypes] = useState(new Set());
-    const [servingTypes, setServingTypes] = useState(new Set(["individual"]));
+    const [servingTypes, setServingTypes] = useState(new Set(["individual", "group"]));
     const [priceFilter, setPriceFilter] = useState(20);
     const [distanceFilter, setDistanceFilter] = useState(.5);
 
@@ -41,11 +41,24 @@ export default function BeersScreen() {
 
     useEffect(() => {
         async function fetchBeers() {
-            const results = await searchBeerioDB('');
-            const sorted = [...results].sort((a, b) =>
+            const results = await searchNearbyBeers(location?.latitude || 0, location?.longitude || 0);
+
+            const filteredResults = results.filter(beer => {
+                if (!servingTypes.has("individual")) {
+                    if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type)) return false;
+                }
+                if (!servingTypes.has("group")) {
+                    if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type)) return false;
+                }
+                return true;
+            });
+const sorted = [...filteredResults].sort((a, b) =>
                 (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
             );
+console.log("filteredResults count:", filteredResults.length);
+console.log("sorted count:", sorted.length);
             const grouped = sorted.reduce((acc, beer) => {
+
 
                 const key = beer.name; // Use beer name as key
 
@@ -72,6 +85,8 @@ export default function BeersScreen() {
                         acc[key].best_cost_per_oz = beer.cost_per_alcohol_oz;
                         acc[key].best_price = beer.price;
                         acc[key].best_size = beer.size;
+                        acc[key].serving_type = beer.serving_type;
+                        acc[key].serving_description = beer.serving_description;
                     }
                 }
 
@@ -96,42 +111,44 @@ export default function BeersScreen() {
         fetchBeers();
     }, []);
 
-    // One useEffect that responds to any filter change
-    useEffect(() => {
-        const filteredBeers = Object.values(groupedBeers).filter(beer => {            
-            // Serving type filter 
-            // Individual type includes "Can", "Bottle", "Draft", "Nitro", "Cask"
-             if (!servingTypes.has("individual")){
-                if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type || "")) return false;
-            }
-            // Group type includes "Pitcher", "Growler", "Crowler", "Bucket", "Tower"
-            if (!servingTypes.has("group")){
-                if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type || "")) return false;
-            }
+    // // One useEffect that responds to any filter change
+    // useEffect(() => {
+    //     const filteredBeers = Object.values(groupedBeers).filter(beer => {
+    //         console.log("Current servingTypes:", Array.from(servingTypes));
+    //         console.log("Beer being filtered:", beer.name, "serving_type:", beer.serving_type);
+    //         // Serving type filter 
+    //         // Individual type includes "Can", "Bottle", "Draft", "Nitro", "Cask"
+    //         if (!servingTypes.has("individual")) {
+    //             if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type || "")) return false;
+    //         }
+    //         // Group type includes "Pitcher", "Growler", "Crowler", "Bucket", "Tower"
+    //         if (!servingTypes.has("group")) {
+    //             if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type || "")) return false;
+    //         }
 
-            //console.log("filtering beers based on servingTypes:", servingTypes);
-            console.log("beer: ", beer);
+    //         //console.log("filtering beers based on servingTypes:", servingTypes);
+    //         console.log("beer: ", beer);
 
-            // Price filter
-            if (beer.best_price && beer.best_price > priceFilter) return false;
+    //         // Price filter
+    //         if (beer.best_price && beer.best_price > priceFilter) return false;
 
-            // Beer type filter  
-            if (!selectedTypes.has(beer.type_group)) 
-                return false;
+    //         // Beer type filter  
+    //         if (!selectedTypes.has(beer.type_group))
+    //             return false;
 
-            
-            
-            
-           
-            // Distance filter (if location available)
-            // if (distance > distanceFilter) return false;
 
-            return true;
-        });
 
-        setFilteredBeers(filteredBeers);
-        console.log("filteredBeers: ", filteredBeers.length, " ", filteredBeers);
-    }, [groupedBeers, priceFilter, selectedTypes, servingTypes, distanceFilter, location]);
+
+
+    //         // Distance filter (if location available)
+    //         // if (distance > distanceFilter) return false;
+
+    //         return true;
+    //     });
+
+    //     setFilteredBeers(filteredBeers);
+    //     console.log("filteredBeers: ", filteredBeers.length, " ", filteredBeers);
+    // }, [groupedBeers, priceFilter, selectedTypes, servingTypes, distanceFilter, location]);
 
 
     const renderLocationBanner = () => {
@@ -163,7 +180,7 @@ export default function BeersScreen() {
     const viewComponents = {
         "Cards": (
             <BeerCardView
-                groupedBeers={filteredBeers}
+                groupedBeers={groupedBeers}
                 theme={theme}
                 location={location}
                 locationStatus={status}
@@ -172,7 +189,7 @@ export default function BeersScreen() {
         ),
         "Table": (
             <BeerTableView
-                groupedBeers={Object.values(filteredBeers)}
+                groupedBeers={Object.values(groupedBeers)}
                 theme={theme}
                 location={location}
                 locationStatus={status}
@@ -181,7 +198,7 @@ export default function BeersScreen() {
         ),
         "Map": (
             <BeerMapView
-                groupedBeers={filteredBeers}
+                groupedBeers={groupedBeers}
                 theme={theme}
                 location={location}
                 locationStatus={status}
