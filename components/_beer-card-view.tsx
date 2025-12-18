@@ -63,7 +63,7 @@ export default function BeerCardView({
                 style={{ height: '100%' }}
                 data={Object.values(groupedBeers)}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ paddingHorizontal: '10%', paddingBottom: 60 }}
+                contentContainerStyle={{ paddingHorizontal: '10%', paddingBottom: 150 }}
                 renderItem={({ item, index }) => (
                     <List.Accordion
                         title={`$/Oz: ${typeof item.best_cost_per_oz === 'string'

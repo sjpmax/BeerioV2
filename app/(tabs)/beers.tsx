@@ -15,6 +15,7 @@ export default function BeersScreen() {
     const [filteredBeers, setFilteredBeers] = useState<GroupedBeer[]>([]);
     const [filters, setFilters] = useState({ type: '', price: '', abv: '', distance: '' });
     const [snackVisible, setSnackVisible] = useState(false);
+    const [rawBeers, setRawBeers] = useState<any[]>([]); // Store raw beer data
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
@@ -27,10 +28,17 @@ export default function BeersScreen() {
         margin: 20,
         borderRadius: 8,
     };
+    // Available types (from data)
+    const [availableBeerTypes, setAvailableBeerTypes] = useState(new Set());
+
+    // Selected types (user's filter choice) 
     const [selectedTypes, setSelectedTypes] = useState(new Set());
     const [servingTypes, setServingTypes] = useState(new Set(["individual", "group"]));
+    const [distanceUnits, setDistanceUnits] = useState(new Set(["Mi", "Km"]));
+    const [distanceUnit, setDistanceUnit] = useState("Mi");
     const [priceFilter, setPriceFilter] = useState(20);
-    const [distanceFilter, setDistanceFilter] = useState(.5);
+    // Initial distance filter in miles, which will get converted to meters for the query
+    const [distanceFilter, setDistanceFilter] = useState(2);
 
     const handleFilterChange = (filterType: string, value: string) => {
         setFilters((prevFilters) => ({
@@ -39,131 +47,111 @@ export default function BeersScreen() {
         }));
     }
 
-// export async function searchNearbyBeers(
-//   userLat: number, 
-//   userLng: number, 
-//   radiusMeters: number = 3000,
-//   query: string = ''
-// ): 
-
 
     useEffect(() => {
         async function fetchBeers() {
-console.log("Location status in useEffect:", status);
- if (status !== 'success') {
-        return; // Don't fetch data yet
-    }
-console.log("Fetching beers with location:", location);
+            if (status !== 'success') {
+                return;
+            }
+            // Convert distanceFilter to meters because our DB function uses meters
+            let distanceInMeters = distanceFilter * 1609.344;
+
             const results = await searchNearbyBeers(
                 location?.coords.latitude || 0,
-                location?.coords.longitude || 0, 3000);
+                location?.coords.longitude || 0, distanceInMeters);
 
-            const filteredResults = results.filter(beer => {
-                if (!servingTypes.has("individual")) {
-                    if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type)) return false;
-                }
-                if (!servingTypes.has("group")) {
-                    if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type)) return false;
-                }
-                return true;
-            });
-const sorted = [...filteredResults].sort((a, b) =>
-                (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
-            );
-console.log("filteredResults count:", filteredResults.length);
-console.log("sorted count:", sorted.length);
-            const grouped = sorted.reduce((acc, beer) => {
-
-
-                const key = beer.name; // Use beer name as key
-
-                if (!acc[key]) {
-                    acc[key] = {
-                        id: beer.id,
-                        name: beer.name,
-                        abv: beer.abv,
-                        type: beer.type,
-                        type_group: beer.type_group,
-                        serving_type: beer.serving_type,
-                        serving_description: beer.serving_description,
-                        brewery: beer.brewery, // This should now work if your interface matches
-                        best_cost_per_oz: beer.cost_per_alcohol_oz,
-                        best_size: beer.size,
-                        best_price: beer.price,
-                        source: beer.source,
-                        locations: [],
-                    }
-                } else {
-                    // Beer exists - update best values if current is better
-                    if (beer.cost_per_alcohol_oz &&
-                        beer.cost_per_alcohol_oz < acc[key].best_cost_per_oz!) {
-                        acc[key].best_cost_per_oz = beer.cost_per_alcohol_oz;
-                        acc[key].best_price = beer.price;
-                        acc[key].best_size = beer.size;
-                        acc[key].serving_type = beer.serving_type;
-                        acc[key].serving_description = beer.serving_description;
-                    }
-                }
-
-                // Add location info
-                acc[key].locations.push({
-                    price: beer.price,
-                    bar_name: beer.bar_name,
-                    bar_lat: beer.bar_lat,
-                    bar_long: beer.bar_long,
-                    cost_per_alcohol_oz: beer.cost_per_alcohol_oz,
-                    bar_address: beer.bar_address,
-                    size: beer.size,
-                    serving_type: beer.serving_type,
-                    serving_description: beer.serving_description,
-                });
-
-                return acc;
-            }, {} as Record<string, GroupedBeer>);
-
-            setGroupedBeers(grouped);
+            const availableTypes = new Set(results.map(a => a.type_group));
+            setAvailableBeerTypes(availableTypes);
+            if (selectedTypes.size === 0) {
+                setSelectedTypes(availableTypes);
+            }
+            setRawBeers(results); // Just store raw data
         }
         fetchBeers();
-    }, [status]);
+    }, [status, distanceFilter]); // Only depends on location status
 
-    // // One useEffect that responds to any filter change
-    // useEffect(() => {
-    //     const filteredBeers = Object.values(groupedBeers).filter(beer => {
-    //         console.log("Current servingTypes:", Array.from(servingTypes));
-    //         console.log("Beer being filtered:", beer.name, "serving_type:", beer.serving_type);
-    //         // Serving type filter 
-    //         // Individual type includes "Can", "Bottle", "Draft", "Nitro", "Cask"
-    //         if (!servingTypes.has("individual")) {
-    //             if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type || "")) return false;
-    //         }
-    //         // Group type includes "Pitcher", "Growler", "Crowler", "Bucket", "Tower"
-    //         if (!servingTypes.has("group")) {
-    //             if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type || "")) return false;
-    //         }
-
-    //         //console.log("filtering beers based on servingTypes:", servingTypes);
-    //         console.log("beer: ", beer);
-
-    //         // Price filter
-    //         if (beer.best_price && beer.best_price > priceFilter) return false;
-
-    //         // Beer type filter  
-    //         if (!selectedTypes.has(beer.type_group))
-    //             return false;
+    useEffect(() => {
+        if (!rawBeers.length) return;
 
 
+        console.log("****************************************");
+        console.log("price filter", priceFilter);
+        console.log("****************************************");
 
+        // All your current logic goes here:
+        const filteredResults = rawBeers.filter(beer => {
+            if (!servingTypes.has("individual")) {
+                if (["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beer.serving_type)) return false;
+            }
+            if (!servingTypes.has("group")) {
+                if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type)) return false;
+            }
 
+            console.log("Beer:", beer.name, "Price:", beer.price, "price filter:", priceFilter, "\n");
+            // Price filter
+            if (beer.price && beer.price > priceFilter) return false;
 
-    //         // Distance filter (if location available)
-    //         // if (distance > distanceFilter) return false;
+            // Beer type filter
+            if (!selectedTypes.has(beer.type_group))
+                return false;
 
-    //         return true;
-    //     });
+            return true;
+        });
 
-    //     setFilteredBeers(filteredBeers);
-    //     console.log("filteredBeers: ", filteredBeers.length, " ", filteredBeers);
-    // }, [groupedBeers, priceFilter, selectedTypes, servingTypes, distanceFilter, location]);
+        const sorted = [...filteredResults].sort((a, b) =>
+            (a.cost_per_alcohol_oz ?? 0) - (b.cost_per_alcohol_oz ?? 0)
+        );
+
+        const grouped = sorted.reduce((acc, beer) => {
+            const key = beer.name; // Use beer name as key
+
+            if (!acc[key]) {
+                acc[key] = {
+                    id: beer.id,
+                    name: beer.name,
+                    abv: beer.abv,
+                    type: beer.type,
+                    type_group: beer.type_group,
+                    serving_type: beer.serving_type,
+                    serving_description: beer.serving_description,
+                    brewery: beer.brewery, // This should now work if your interface matches
+                    best_cost_per_oz: beer.cost_per_alcohol_oz,
+                    best_size: beer.size,
+                    best_price: beer.price,
+                    source: beer.source,
+                    locations: [],
+                }
+            } else {
+                // Beer exists - update best values if current is better
+                if (beer.cost_per_alcohol_oz &&
+                    beer.cost_per_alcohol_oz < acc[key].best_cost_per_oz!) {
+                    acc[key].best_cost_per_oz = beer.cost_per_alcohol_oz;
+                    acc[key].best_price = beer.price;
+                    acc[key].best_size = beer.size;
+                    acc[key].serving_type = beer.serving_type;
+                    acc[key].serving_description = beer.serving_description;
+                }
+            }
+
+            // Add location info
+            acc[key].locations.push({
+                price: beer.price,
+                bar_name: beer.bar_name,
+                bar_lat: beer.bar_lat,
+                bar_long: beer.bar_long,
+                cost_per_alcohol_oz: beer.cost_per_alcohol_oz,
+                bar_address: beer.bar_address,
+                size: beer.size,
+                serving_type: beer.serving_type,
+                serving_description: beer.serving_description,
+            });
+
+            return acc;
+        }, {} as Record<string, GroupedBeer>);
+
+        setGroupedBeers(grouped);
+    }, [rawBeers, servingTypes, selectedTypes, location, priceFilter, distanceFilter, location]);
+
 
 
     const renderLocationBanner = () => {
@@ -222,14 +210,7 @@ console.log("sorted count:", sorted.length);
         )
 
     };
-    // Initialize selectedTypes after groupedBeers is loaded
-    useEffect(() => {
-        if (Object.keys(groupedBeers).length > 0) {
-            const allTypes = new Set(Object.values(groupedBeers).map(beer => beer.type_group));
-            setSelectedTypes(allTypes);
-        }
-    }, [groupedBeers]);
-
+    
 
     return (
         <View
@@ -300,6 +281,7 @@ console.log("sorted count:", sorted.length);
                         modalVisible={showFilters}
                         hideModal={() => setShowFilters(false)}
                         groupedBeers={groupedBeers}
+                        availableBeerTypes={availableBeerTypes}
                         selectedTypes={selectedTypes}
                         setSelectedTypes={setSelectedTypes}
                         servingTypes={servingTypes}
@@ -308,6 +290,8 @@ console.log("sorted count:", sorted.length);
                         setPriceFilter={setPriceFilter}
                         distanceFilter={distanceFilter}
                         setDistanceFilter={setDistanceFilter}
+                        distanceUnits={distanceUnits}
+                        setDistanceUnits={setDistanceUnits}
                         theme={theme}
                     />
 

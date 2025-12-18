@@ -4,17 +4,19 @@ import Slider from '@react-native-community/slider';
 import { Checkbox } from 'expo-checkbox';
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Divider, IconButton } from 'react-native-paper';
+import { Divider, IconButton, RadioButton } from 'react-native-paper';
 
 
-export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers, selectedTypes, setSelectedTypes, servingTypes, setServingTypes, priceFilter, setPriceFilter, distanceFilter, setDistanceFilter, theme }:
-    { modalVisible: boolean, hideModal: any, groupedBeers: Record<string, GroupedBeer>, selectedTypes: Set<string>, setSelectedTypes: (types: Set<string>) => void, servingTypes: Set<string>, setServingTypes: (types: Set<string>) => void, priceFilter: number, setPriceFilter: (price: number) => void, distanceFilter: number, setDistanceFilter: (distance: number) => void, theme: any }) {
+export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers, availableBeerTypes,  selectedTypes, setSelectedTypes, servingTypes, setServingTypes, priceFilter, setPriceFilter, distanceFilter, setDistanceFilter, distanceUnits, setDistanceUnits, theme }:
+    { modalVisible: boolean, hideModal: any, groupedBeers: Record<string, GroupedBeer>, availableBeerTypes: Set<string>, selectedTypes: Set<string>, setSelectedTypes: (types: Set<string>) => void, servingTypes: Set<string>, setServingTypes: (types: Set<string>) => void, priceFilter: number, setPriceFilter: (price: number) => void, distanceFilter: number, setDistanceFilter: (distance: number) => void, distanceUnits: Set<string>, setDistanceUnits: (types: Set<string>) => void, theme: any }) {
 
     const [priceFilterLocal, setPriceFilterLocal] = useState(priceFilter);
     const [distanceFilterLocal, setDistanceFilterLocal] = useState(distanceFilter);
     const sortedGroups = new Set(Object.values(groupedBeers).map(a => a.type_group));
 
     const allServingTypes = ["individual", "group"];
+    // ToDo: Define all distance units 
+    const allDistanceUnits = ["Mi", "Km"];
 
     const maxPrice = Math.max(...Object.values(groupedBeers).map(beer => beer.best_price || 0));
     const minPrice = Math.min(...Object.values(groupedBeers).map(beer => beer.best_price || 0));
@@ -38,6 +40,17 @@ export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers,
         setServingTypes(newSet);
     };
 
+    const toggleDistanceUnit = (unit: string) => {
+        const newSet = new Set(distanceUnits);
+        if (newSet.has(unit)) {
+            newSet.delete(unit);
+        } else {
+            newSet.add(unit);
+        }
+        setDistanceUnits(newSet);
+    };
+                
+
     return (
         <View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -57,7 +70,7 @@ export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers,
                     <Text style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>Max Price: ${priceFilter}</Text>
                     <Slider
                         minimumValue={minPrice}
-                        maximumValue={maxPrice}
+                        maximumValue={40}
                         step={0.5}
                         value={priceFilter}
                         onValueChange={(value) => setPriceFilter(value)}
@@ -68,6 +81,7 @@ export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers,
                     />
 
                 </View>
+              
                 <View style={{ flex: 1 }}>
                     {/* Filter options will go here */}
                     <Text style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>Max Search Radius: {distanceFilter}Mi</Text>
@@ -86,7 +100,7 @@ export default function BeerFilterModal({ modalVisible, hideModal, groupedBeers,
                 <View style={{ flex: 1,marginTop: 0  }}>
                     <Text style={{ color: theme.colors.onSurface , fontWeight: 'bold'}}>Beer Types:</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 5 }}>
-                        {Array.from(sortedGroups).map((type, idx) => (
+                        {Array.from(availableBeerTypes).map((type, idx) => (
                             <TouchableOpacity
                                 key={type}
                                 style={{

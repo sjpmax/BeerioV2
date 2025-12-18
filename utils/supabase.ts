@@ -109,7 +109,8 @@ export async function searchNearbyBeers(
   radiusMeters: number = 3000,
   query: string = ''
 ): Promise<BeerSuggestion[]> {
-  try {
+    try {
+        console.log("distance, ", radiusMeters);
     const { data, error } = await supabase
       .rpc('nearby_beers', { 
         user_lat: userLat, 
