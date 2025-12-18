@@ -39,9 +39,24 @@ export default function BeersScreen() {
         }));
     }
 
+// export async function searchNearbyBeers(
+//   userLat: number, 
+//   userLng: number, 
+//   radiusMeters: number = 3000,
+//   query: string = ''
+// ): 
+
+
     useEffect(() => {
         async function fetchBeers() {
-            const results = await searchNearbyBeers(location?.latitude || 0, location?.longitude || 0);
+console.log("Location status in useEffect:", status);
+ if (status !== 'success') {
+        return; // Don't fetch data yet
+    }
+console.log("Fetching beers with location:", location);
+            const results = await searchNearbyBeers(
+                location?.coords.latitude || 0,
+                location?.coords.longitude || 0, 3000);
 
             const filteredResults = results.filter(beer => {
                 if (!servingTypes.has("individual")) {
@@ -109,7 +124,7 @@ console.log("sorted count:", sorted.length);
             setGroupedBeers(grouped);
         }
         fetchBeers();
-    }, []);
+    }, [status]);
 
     // // One useEffect that responds to any filter change
     // useEffect(() => {
