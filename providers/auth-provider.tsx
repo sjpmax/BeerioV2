@@ -22,7 +22,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
                 console.error('Error fetching session:', error)
             }
              
-        Alert.alert('Session Check', session ? 'Session found!' : 'No session');
         
             setSession(session)
             setIsLoading(false)
@@ -33,7 +32,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
             console.log('Auth state changed:', { event: _event, session })
-              Alert.alert('Auth State Change', _event || 'unknown event');
             setSession(session)
         })
 

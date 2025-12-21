@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { MD3DarkTheme, PaperProvider, Text } from 'react-native-paper';
 import { useAuthContext } from '@/hooks/use-auth-context'
-
+import AuthProvider from '@/providers/auth-provider';
 import '@/global.css';
 export const unstable_settings = {
     anchor: '(tabs)',
@@ -43,6 +43,7 @@ export default function RootLayout() {
     const { isLoggedIn } = useAuthContext()
 
     return (
+    <AuthProvider>
         <PaperProvider theme={Theme} >
             <Stack
                 screenOptions={{
@@ -58,6 +59,6 @@ export default function RootLayout() {
             </Stack>
             <StatusBar style="auto" />
         </PaperProvider>
-
+        </AuthProvider>
     );
 }

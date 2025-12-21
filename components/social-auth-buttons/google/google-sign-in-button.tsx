@@ -28,7 +28,6 @@ export default function GoogleSignInButton() {
 
     async function onSignInButtonPress() {
         console.debug('onSignInButtonPress - start');
-          Alert.alert('Google Sign-In', 'Starting Google sign-in process');
           
         const res = await supabase.auth.signInWithOAuth({
             provider: "google",
