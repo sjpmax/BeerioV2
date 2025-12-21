@@ -6,7 +6,7 @@ import useLocation from '@/hooks/useLocation';
 import { GroupedBeer, searchNearbyBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme } from 'react-native-paper';
+import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator } from 'react-native-paper';
 
 export default function BeersScreen() {
     const [beerView, setBeerView] = useState("Cards");
@@ -15,6 +15,7 @@ export default function BeersScreen() {
     const [filteredBeers, setFilteredBeers] = useState<GroupedBeer[]>([]);
     const [filters, setFilters] = useState({ type: '', price: '', abv: '', distance: '' });
     const [snackVisible, setSnackVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [rawBeers, setRawBeers] = useState<any[]>([]); // Store raw beer data
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
@@ -51,8 +52,10 @@ export default function BeersScreen() {
     useEffect(() => {
         async function fetchBeers() {
             if (status !== 'success') {
+
                 return;
             }
+            setIsLoading(false);
             // Convert distanceFilter to meters because our DB function uses meters
             let distanceInMeters = distanceFilter * 1609.344;
 
@@ -87,7 +90,7 @@ export default function BeersScreen() {
                 if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type)) return false;
             }
 
-            console.log("Beer:", beer.name, "Price:", beer.price, "price filter:", priceFilter, "\n");
+            console.log("Beer:", beer.name, "Price:", beer.price, "price filter:", priceFilter, "ID: ", beer.id, "\n");
             // Price filter
             if (beer.price && beer.price > priceFilter) return false;
 
@@ -210,7 +213,7 @@ export default function BeersScreen() {
         )
 
     };
-    
+
 
     return (
         <View
@@ -218,103 +221,116 @@ export default function BeersScreen() {
             //contentContainerStyle={{ justifyContent: 'center' }}
             style={{ backgroundColor: theme.colors.background }}
         >
-            <Button style={{ marginTop: 30 }} onPress={showFilters ? () => setShowFilters(false) : () => setShowFilters(true)} mode="outlined">
-                Filters
-            </Button>
-            <View style={{ flexDirection: 'row', marginTop: 25 }}>
-                <View style={{ flex: 1 }}></View>
-                <View style={{ flex: 3 }} >
-                    <SegmentedButtons
-                        value={beerView}
-                        onValueChange={handleBeerViewChange}
-                        contentInset={{ bottom: 80 }} //IOS only
-                        buttons={beerViewTitles.map((section) => ({
-                            value: section,
-                            label: section,
-                            style: {
-                                backgroundColor:
-                                    beerView === section
-                                        ? theme.colors.primary
-                                        : theme.colors.surfaceVariant,
-                                borderColor: theme.colors.outline,
-                            },
-                            labelStyle: {
-                                color:
-                                    beerView === section
-                                        ? theme.colors.onPrimary
-                                        : theme.colors.onSurfaceVariant,
-                            },
-                        }))}
-                    />
+            {/* Loading screen. I want an animated gif of Beerio pouring a beer here.*/}
+            {isLoading && <View>
+                <ActivityIndicator
+                    animating={true} size="large"
+                    style={{ marginTop: '50%' }}
+                />
+                <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.onBackground }}>Looking for the best bang for your buck near you...</Text>
+            </View>}
+            {/*    After the data comes back: */}
+            {!isLoading && (<View>
+                <Button style={{ marginTop: 30 }} onPress={showFilters ? () => setShowFilters(false) : () => setShowFilters(true)} mode="outlined">
+                    Filters
+                </Button>
+                <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                    <View style={{ flex: 1 }}></View>
+                    <View style={{ flex: 3 }} >
+                        <SegmentedButtons
+                            value={beerView}
+                            onValueChange={handleBeerViewChange}
+                            contentInset={{ bottom: 80 }} //IOS only
+                            buttons={beerViewTitles.map((section) => ({
+                                value: section,
+                                label: section,
+                                style: {
+                                    backgroundColor:
+                                        beerView === section
+                                            ? theme.colors.primary
+                                            : theme.colors.surfaceVariant,
+                                    borderColor: theme.colors.outline,
+                                },
+                                labelStyle: {
+                                    color:
+                                        beerView === section
+                                            ? theme.colors.onPrimary
+                                            : theme.colors.onSurfaceVariant,
+                                },
+                            }))}
+                        />
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                        <IconButton
+                            icon="information"
+                            size={25}
+                            onPress={() => setSnackVisible(true)}
+                            accessibilityLabel="Value info"
+
+                        />
+                        <Portal>
+                            <Snackbar
+                                visible={snackVisible}
+                                onDismiss={() => setSnackVisible(false)}
+                                duration={3000}
+                                style={{ backgroundColor: theme.colors.snackBarBG }} theme={{
+                                    colors: {
+                                        onSurface: theme.colors.primary,  // Text color
+                                        inverseOnSurface: theme.colors.primary
+                                    }
+                                }}
+                            >
+                                Value Score is calculated as (Price / Size) / (ABV %) to help identify the best value beers. What you see is the cost per PURE alcohol ounce.
+                            </Snackbar></Portal>
+                    </View>
                 </View>
-                <View style={{ flex: 1, alignItems: 'center' }}>
-                    <IconButton
-                        icon="information"
-                        size={25}
-                        onPress={() => setSnackVisible(true)}
-                        accessibilityLabel="Value info"
+                <Portal>
+                    <Modal
+                        visible={showFilters}
+                        onDismiss={() => setShowFilters(false)}
+                        contentContainerStyle={modalStyles}
+                    >
+                        <BeerFilterModal
+                            modalVisible={showFilters}
+                            hideModal={() => setShowFilters(false)}
+                            groupedBeers={groupedBeers}
+                            availableBeerTypes={availableBeerTypes}
+                            selectedTypes={selectedTypes}
+                            setSelectedTypes={setSelectedTypes}
+                            servingTypes={servingTypes}
+                            setServingTypes={setServingTypes}
+                            priceFilter={priceFilter}
+                            setPriceFilter={setPriceFilter}
+                            distanceFilter={distanceFilter}
+                            setDistanceFilter={setDistanceFilter}
+                            distanceUnits={distanceUnits}
+                            setDistanceUnits={setDistanceUnits}
+                            theme={theme}
+                        />
 
-                    />
-                    <Portal>
-                        <Snackbar
-                            visible={snackVisible}
-                            onDismiss={() => setSnackVisible(false)}
-                            duration={3000}
-                            style={{ backgroundColor: theme.colors.snackBarBG }} theme={{
-                                colors: {
-                                    onSurface: theme.colors.primary,  // Text color
-                                    inverseOnSurface: theme.colors.primary
-                                }
-                            }}
-                        >
-                            Value Score is calculated as (Price / Size) / (ABV %) to help identify the best value beers. What you see is the cost per PURE alcohol ounce.
-                        </Snackbar></Portal>
-                </View>
-            </View>
-            <Portal>
-                <Modal
-                    visible={showFilters}
-                    onDismiss={() => setShowFilters(false)}
-                    contentContainerStyle={modalStyles}
-                >
-                    <BeerFilterModal
-                        modalVisible={showFilters}
-                        hideModal={() => setShowFilters(false)}
-                        groupedBeers={groupedBeers}
-                        availableBeerTypes={availableBeerTypes}
-                        selectedTypes={selectedTypes}
-                        setSelectedTypes={setSelectedTypes}
-                        servingTypes={servingTypes}
-                        setServingTypes={setServingTypes}
-                        priceFilter={priceFilter}
-                        setPriceFilter={setPriceFilter}
-                        distanceFilter={distanceFilter}
-                        setDistanceFilter={setDistanceFilter}
-                        distanceUnits={distanceUnits}
-                        setDistanceUnits={setDistanceUnits}
-                        theme={theme}
-                    />
+                    </Modal>
+                </Portal>
 
-                </Modal>
-            </Portal>
+                {renderLocationBanner()}
 
-            {renderLocationBanner()}
-
-            {viewComponents[beerView] || viewComponents["Cards"]}
+                {viewComponents[beerView] || viewComponents["Cards"]}
 
 
-            <Portal>
-                <Snackbar
-                    visible={snackVisible}
-                    onDismiss={() => setSnackVisible(false)}
-                    action={{
-                        label: 'OK',
-                        onPress: () => setSnackVisible(false),
-                    }}
-                >
-                    Unable to refresh beers
-                </Snackbar>
-            </Portal>
+                <Portal>
+                    <Snackbar
+                        visible={snackVisible}
+                        onDismiss={() => setSnackVisible(false)}
+                        action={{
+                            label: 'OK',
+                            onPress: () => setSnackVisible(false),
+                        }}
+                    >
+                        Unable to refresh beers
+                    </Snackbar>
+                </Portal>
+            </View>)
+            }
         </View>
+
     );
 }

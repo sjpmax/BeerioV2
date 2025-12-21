@@ -2,7 +2,8 @@
 import { phillyColors } from '@/constants/colors';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { MD3DarkTheme, PaperProvider } from 'react-native-paper';
+import { MD3DarkTheme, PaperProvider, Text } from 'react-native-paper';
+import { useAuthContext } from '@/hooks/use-auth-context'
 
 import '@/global.css';
 export const unstable_settings = {
@@ -38,6 +39,8 @@ const Theme = {
 };
 
 export default function RootLayout() {
+
+    const { isLoggedIn } = useAuthContext()
 
     return (
         <PaperProvider theme={Theme} >
