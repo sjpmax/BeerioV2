@@ -64,6 +64,34 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         fetchProfile()
     }, [session])
 
+    useEffect(() => {
+    const fetchSession = async () => {
+        setIsLoading(true)
+        const {
+            data: { session },
+            error,
+        } = await supabase.auth.getSession()
+        console.log('Initial session fetch:', { session, error }); // ADD THIS
+        if (error) {
+            console.error('Error fetching session:', error)
+        }
+        setSession(session)
+        setIsLoading(false)
+    }
+    fetchSession()
+
+    const {
+        data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+        console.log('Auth state changed:', { event: _event, session })
+        setSession(session)
+    })
+
+    return () => {
+        subscription.unsubscribe()
+    }
+}, [])
+
     return (
         <AuthContext.Provider
             value={{

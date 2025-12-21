@@ -32,26 +32,35 @@ export default function GoogleSignInButton() {
             provider: "google",
             options: {
                 redirectTo: `${expo.scheme}://google-auth`,
-                queryParams: { prompt: "consent" },
-                skipBrowserRedirect: true,
+                queryParams: { prompt: "consent" }
             },
         });
 
         const googleOAuthUrl = res.data.url;
+
+        console.debug('onSignInButtonPress - res', { res });
 
         if (!googleOAuthUrl) {
             console.error("no oauth url found!");
             return;
         }
 
-        const result = await WebBrowser.openAuthSessionAsync(
-            googleOAuthUrl,
-            `${expo.scheme}://google-auth`,
-            { showInRecents: true },
-        ).catch((err) => {
-            console.error('onSignInButtonPress - openAuthSessionAsync - error', { err });
-            console.log(err);
-        });
+        const result = await Promise.race([
+    WebBrowser.openAuthSessionAsync(
+        googleOAuthUrl,
+        `${expo.scheme}://google-auth`,
+        { showInRecents: true }
+    ),
+    new Promise((resolve) => 
+        setTimeout(() => {
+            console.log('TIMEOUT - openAuthSessionAsync took too long');
+            resolve({ type: 'timeout' });
+        }, 10000) // 10 second timeout
+    )
+]).catch((err) => {
+    console.error('onSignInButtonPress - openAuthSessionAsync - error', { err });
+    return { type: 'error', err };
+});
 
         console.debug('onSignInButtonPress - openAuthSessionAsync - result', { result });
         console.log('Full result object:', JSON.stringify(result));
