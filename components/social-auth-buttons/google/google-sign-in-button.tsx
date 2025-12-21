@@ -1,6 +1,6 @@
 import { supabase } from '@/utils/supabase';
 import { useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Alert } from 'react-native';
 
 import { expo } from '@/app.json';
 import { Text } from '@react-navigation/elements';
@@ -28,6 +28,8 @@ export default function GoogleSignInButton() {
 
     async function onSignInButtonPress() {
         console.debug('onSignInButtonPress - start');
+          Alert.alert('Google Sign-In', 'Starting Google sign-in process');
+          
         const res = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
