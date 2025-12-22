@@ -3,7 +3,6 @@ import React from 'react'
 import { Button, Text, useTheme } from 'react-native-paper';
 
 async function onSignOutButtonPress() {
-    const theme = useTheme();
     const { error } = await supabase.auth.signOut()
 
     if (error) {
@@ -12,5 +11,7 @@ async function onSignOutButtonPress() {
 }
 
 export default function SignOutButton() {
-        return <Button icon="logout" onPress={onSignOutButtonPress} style={{ paddingVertical: 8, height: 88 }} ><Text>Sign out</Text></Button>;
+
+    const theme = useTheme();
+    return <Button icon="logout" onPress={onSignOutButtonPress} style={{  height: 40, backgroundColor: theme.colors.popLight, marginTop: 8 }} ><Text>Sign out</Text></Button>;
     }

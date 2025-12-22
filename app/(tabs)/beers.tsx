@@ -325,7 +325,6 @@ export default function BeersScreen() {
                             onPress: () => setSnackVisible(false),
                         }}
                     >
-                        Unable to refresh beers
                     </Snackbar>
                 </Portal>
             </View>)
