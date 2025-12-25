@@ -185,3 +185,33 @@ export async function searchNearbyBeers(
     return [];
   }
 }
+
+export async function getUserProfile(userId: string) {
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+    }
+}
+
+export async function updateUserProfile(userId: string, updates: { nickname?: string; full_name?: string; avatar_url?: string; }) {
+    try {
+        console.log('Updating user profile with:', updates, "user id:", userId);
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', userId);
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        return null;
+    }
+}

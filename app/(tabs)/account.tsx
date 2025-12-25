@@ -6,18 +6,18 @@ import SignOutButton from '@/components/social-auth-buttons/sign-out-button'
 import { useAuthContext } from '@/hooks/use-auth-context'
 import AppleSignInButton from '@/components/social-auth-buttons/apple/apple-sign-in-button';
 import GoogleSignInButton from '@/components/social-auth-buttons/google/google-sign-in-button';
-import EditProfileModal from '@/components/modals/_edit_profile';
+import EditProfileModal from '@/components/_edit_profile';
 export default function AccountScreen() {
+    const theme = useTheme();
     const { profile, session } = useAuthContext()
 
-    const [ShowProfile, setShowProfile] = useState(false);
+    const [ShowProfileModal, setShowProfileModal] = useState(false);
     const modalStyles = {
         backgroundColor: theme.colors.surface,
         padding: 20,
         margin: 20,
         borderRadius: 8,
     };
-    const theme = useTheme();
     console.log('Auth context:', { profile, session});
     return (
         <View className="flex-1 items-center justify-center bg-gray-900" styles={{ flexDirection: 'column' }}>
@@ -31,8 +31,8 @@ export default function AccountScreen() {
                 (
 
                     <View style={{ flex: 1 }}>
-                        <Button icon="account" buttonColor={theme.colors.primaryContainer} onPress={ShowProfile ? () => setShowProfile(false) : () => setShowProfile(true)} ><Text>Edit Profile</Text> </Button>
-                        <View style={{ flex: 1 }}><SignOutButton />Button</View>
+                        <Button icon="account" buttonColor={theme.colors.primaryContainer} onPress={ShowProfileModal ? () => setShowProfileModal(false) : () => setShowProfileModal(true)} ><Text>Edit Profile</Text> </Button>
+                        <View style={{ flex: 1 }}><SignOutButton /></View>
                     </View>
                 ) :
                 /* If the user is not logged in, show the social sign-in buttons */
@@ -44,13 +44,13 @@ export default function AccountScreen() {
             <View style={{ flex: 5, justifyContent: 'center', alignItems: 'center' }}></View>
             <Portal>
                 <Modal
-                    visible={ShowProfile}
-                    onDismiss={() => setShowProfile(false)}
+                    visible={ShowProfileModal}
+                    onDismiss={() => setShowProfileModal(false)}
                     contentContainerStyle={modalStyles}
                 >
                     <EditProfileModal
-                        modalVisible={ShowProfile}
-                        hideModal={() => setShowProfile(false)}
+                        modalVisible={ShowProfileModal}
+                        hideModal={() => setShowProfileModal(false)}
                         theme={theme}
                     />
                 </Modal>
