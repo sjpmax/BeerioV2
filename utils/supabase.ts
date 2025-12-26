@@ -29,6 +29,21 @@ export interface BeerSuggestion {
 }
 
 
+export interface BarDetails {
+    id: string;
+    name: string;
+    street_address?: string;
+    zip: string;
+    city?: string;
+    state?: string;
+    longitude?: number | null;
+    latitude?: number | null;
+    is_brewery?: boolean;
+    dist_meters?: number;
+    has_active_special?: boolean;
+
+}
+
 export interface BeerLocation {
     price?: number;
     bar_name?: string;
@@ -133,6 +148,39 @@ console.log("Hitting up the DB!!!!", data);
     }
 }
 
+export async function searchNearbyBars(
+    userLat: number,
+    userLng: number,
+    radiusMeters: number = 3000,
+    userTimezone: string = '',
+    query: string = ''
+): Promise<BarDetails[]> {
+    try {
+        console.log("lat, lng ", userLat, userLng, "distance, ", radiusMeters);
+        const { data, error } = await supabase
+            .rpc('nearby_bars', {
+                user_lat: userLat,
+                user_long: userLng,
+                max_distance_meters: radiusMeters,
+                user_timezone: userTimezone
+            });
+
+        if (error) throw error;
+
+        console.log("Hitting up spatial DB for beers!!!!", data);
+        // Filter by query if provided (since we can't pass query to the function)
+        let filteredData = data;
+        console.log("data from nearby_bars rpc:", data);
+        return data;
+    } catch (error) {
+        console.error('Spatial search error:', error);
+        return [];
+    }
+
+}
+
+
+// Hot list of beers nearby based on lat/lng and radius
 export async function searchNearbyBeers(
   userLat: number, 
   userLng: number, 
@@ -150,7 +198,7 @@ export async function searchNearbyBeers(
     
     if (error) throw error;
     
-    console.log("Hitting up spatial DB!!!!", data);
+    console.log("Hitting up spatial DB for beers!!!!", data);
     
     // Filter by query if provided (since we can't pass query to the function)
     let filteredData = data;
@@ -186,6 +234,7 @@ export async function searchNearbyBeers(
   }
 }
 
+
 export async function getUserProfile(userId: string) {
     try {
         const { data, error } = await supabase
@@ -193,7 +242,7 @@ export async function getUserProfile(userId: string) {
             .select('*')
             .eq('id', userId)
             .single();
-        if (error) throw error;
+        console.log("got the prof, bro", data);
         return data;
     } catch (error) {
         console.error('Error fetching user profile:', error);

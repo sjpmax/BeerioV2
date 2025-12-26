@@ -6,6 +6,7 @@ import { expo } from '@/app.json';
 import { Text } from '@react-navigation/elements';
 import { Image } from 'expo-image';
 import * as WebBrowser from "expo-web-browser";
+import { router } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -80,13 +81,15 @@ export default function GoogleSignInButton() {
                     refresh_token: params.refresh_token,
                 });
                 console.debug('onSignInButtonPress - setSession - success', { data, error });
+
+                router.navigate('/(tabs)/beers');
                 return;
             } else {
-                console.error('onSignInButtonPress - setSession - failed A');
+                console.error('onSignInButtonPress - setSession - failed ');
                 // sign in/up failed
             }
         } else {
-            console.error('onSignInButtonPress - openAuthSessionAsync - failed B');
+            console.error('onSignInButtonPress - openAuthSessionAsync - failed ');
         }
     }
 

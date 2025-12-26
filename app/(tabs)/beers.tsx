@@ -6,7 +6,8 @@ import useLocation from '@/hooks/useLocation';
 import { GroupedBeer, searchNearbyBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator } from 'react-native-paper';
+import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator, FAB } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BeersScreen() {
     const [beerView, setBeerView] = useState("Cards");
@@ -47,7 +48,7 @@ export default function BeersScreen() {
             [filterType]: value,
         }));
     }
-
+    const [fabOpen, setFabOpen] = useState(false);
 
     useEffect(() => {
         async function fetchBeers() {
@@ -218,7 +219,6 @@ export default function BeersScreen() {
     return (
         <View
             className="flex-1 p-15"
-            //contentContainerStyle={{ justifyContent: 'center' }}
             style={{ backgroundColor: theme.colors.background }}
         >
             {/* Loading screen. I want an animated gif of Beerio pouring a beer here.*/}
@@ -310,11 +310,41 @@ export default function BeersScreen() {
 
                     </Modal>
                 </Portal>
+                <Portal>
+                    <FAB.Group
+                        style={{ marginBottom: 80 }}
+                        open={fabOpen}
+                        onStateChange={({ open }) => setFabOpen(open)}
+                        visible
+                        icon={fabOpen ? 'minus' : 'plus'}
+                        actions={[
+                            {
+                                icon: 'glass-mug',
+                                label: 'Add Beers',
+                                onPress: () => console.log('Pressed star'),
+                            },
+                            {
+                                icon: 'store-plus',
+                                label: 'Add Bar',
+                                onPress: () => console.log('Pressed email'),
+                            },
+                            {
+                                icon: 'bell',
+                                label: 'Specials Reminders',
+                                onPress: () => console.log('Pressed notifications'),
+                            },
+                        ]}
+                        onPress={() => {
+                            if (fabOpen) {
+                                // do something if the speed dial is open
+                            }
+                        }}
+                    />
+                </Portal>
+
 
                 {renderLocationBanner()}
-
-                {viewComponents[beerView] || viewComponents["Cards"]}
-
+                    {viewComponents[beerView] || viewComponents["Cards"]}
 
                 <Portal>
                     <Snackbar

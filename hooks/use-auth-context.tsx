@@ -6,7 +6,7 @@ export type AuthData = {
     profile?: any | null
     isLoading: boolean
     isLoggedIn: boolean
-    getProfileData?: () => Promise<void>
+    getProfileData: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthData>({

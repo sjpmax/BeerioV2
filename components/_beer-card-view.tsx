@@ -60,10 +60,9 @@ export default function BeerCardView({
     return (
         <List.Section title="" className="flex flex-row p-5">
             <FlatList
-                style={{ height: '100%' }}
                 data={Object.values(groupedBeers)}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ paddingHorizontal: '10%', paddingBottom: 150 }}
+                contentContainerStyle={{ paddingHorizontal: '10%', paddingBottom: 320 }}
                 renderItem={({ item, index }) => (
                     <List.Accordion
                         title={`$/Oz: ${typeof item.best_cost_per_oz === 'string'

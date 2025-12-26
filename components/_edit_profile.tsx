@@ -11,7 +11,7 @@ import { Image } from 'expo-image'
 export default function EditProfileModal({ modalVisible, hideModal, theme }:
     { modalVisible: boolean, hideModal: any, theme: any }) {
         
-    const { profile, session } = useAuthContext();
+    const { profile, session, getProfileData } = useAuthContext();
     const [nickname, setNickname] = useState(profile?.nickname || '');
     const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
     const [fullName, setFullName] = useState(profile?.full_name || '');
@@ -36,6 +36,7 @@ export default function EditProfileModal({ modalVisible, hideModal, theme }:
             if (result) {
                 console.log('Profile updated successfully:', result);
             }
+            await getProfileData();
             hideModal(true);
         };
         updateProfile();
