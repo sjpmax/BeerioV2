@@ -6,13 +6,18 @@ import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useLocation from '@/hooks/useLocation';
 import * as Localization from 'expo-localization';
+import { Link, router } from 'expo-router';
 export default function BarsScreen() {
 
     const [distanceFilter, setDistanceFilter] = useState(2);
     const [isLoading, setIsLoading] = useState(true);
     const [bars, setBars] = useState<BarDetails[]>([]);
     const { location, status, refreshLocation, getDistanceMessage } = useLocation();
-    const userTimezone = Localization.timezone;
+    // the below information is great for denomiations and currency formatting
+    //const userTimezone = Localization.getLocales()[0];
+
+    const userTimezone = Localization.getCalendars()[0].timeZone;
+    console.log("User timezone: ", userTimezone);
     const theme = useTheme();
     const [fabOpen, setFabOpen] = useState(false);
     useEffect(() => {
@@ -32,9 +37,6 @@ export default function BarsScreen() {
                 userTimezone
             );
 
-            console.log("**********@@@@@@@@@@@@@@@@@@@@@@@*******");
-            console.log("bars n' shit", results);
-            console.log("**********@@@@@@@@@@@@@@@@@@@@@@@*******");
             setBars(results);
         }
         fetchBars();
@@ -67,53 +69,83 @@ export default function BarsScreen() {
                         renderItem={({ item }) => (
                             <Card style={{ marginVertical: 5 }}>
                                 <Card.Title
-                                    title={item.name}
+                                    title={item.name + ' - ' + (item.dist_meters / 1609.344).toFixed(2) + ' mi'}
                                     titleStyle={{ color: theme.colors.onBackground }}
                                     subtitle={item.street_address + ', ' + item.city + ', ' + item.state + ' ' + item.zip}
                                 />
                                 <Card.Content>
-                                     {/* show green check if has special right now*/}
-                                    <Text style={{ color: theme.colors.onBackground }}>
-                                        {item.has_active_special ? <Icon source="check-circle" color="green" size={16} /> : <Icon source="octagon" color="red" size={16} />}
-                                        {item.has_active_special ? ' This bar has current beer specials!' : ' No current beer specials found.'}
-                                    </Text>
+                                    <View style={{ flex: 1 }}>
+                                        {/* show green check if has special right now*/}
+                                        <Text style={{ color: theme.colors.onBackground }}>
+                                            {item.has_active_special ? <Icon source="check-circle" color="green" size={16} /> : <Icon source="octagon" color="red" size={16} />}
+                                            {item.has_active_special ? ' This bar has current beer specials!' : ' No current beer specials found.'}
+                                        </Text>
+                                        <View style={{ flex: 1, paddingHorizontal: 16 }}>
+                                        {/*View, edit, find*/}
+                                            <SegmentedButtons
+                                                value={'view'}
+                                                onValueChange={() => { }}
+                                                buttons={[
+                                                   
+                                                    {
+                                                        value: 'edit',
+                                                        label: 'Edit',
+                                                        icon: 'pencil',
+                                                        onPress: () => {
+                                                            router.push({
+                                                                pathname: '/bar-edit',
+                                                                params: { barId: item.id }
+                                                            })
+                                                        }
+                                                    },
+                                                    {
+                                                        value: 'find',
+                                                        label: 'Find',
+                                                        icon: 'map-marker',
+                                                        onPress: () => { },
+                                                    }
+                                                ]}
+                                            />
+                                            <View style={{ flex: 1 }}></View>
+                                        </View>
+                                    </View>
                                 </Card.Content>
                             </Card>
                         )}
                         keyExtractor={(item) => item.id}
                     />
                 </View>
-                    //<Portal>
-                    //    <FAB.Group
-                    //        style={{ marginBottom: 80 }}
-                    //        open={fabOpen}
-                    //        onStateChange={({ open }) => setFabOpen(open)}
-                    //        visible
-                    //        icon={fabOpen ? 'minus' : 'plus'}
-                    //        actions={[
-                    //            {
-                    //                icon: 'glass-mug',
-                    //                label: 'Add Beers',
-                    //                onPress: () => console.log('Pressed star'),
-                    //            },
-                    //            {
-                    //                icon: 'store-plus',
-                    //                label: 'Add Bar',
-                    //                onPress: () => console.log('Pressed email'),
-                    //            },
-                    //            {
-                    //                icon: 'bell',
-                    //                label: 'Specials Reminders',
-                    //                onPress: () => console.log('Pressed notifications'),
-                    //            },
-                    //        ]}
-                    //        onPress={() => {
-                    //            if (fabOpen) {
-                    //                // do something if the speed dial is open
-                    //            }
-                    //        }}
-                    //    />
-                    //</Portal>
+                //<Portal>
+                //    <FAB.Group
+                //        style={{ marginBottom: 80 }}
+                //        open={fabOpen}
+                //        onStateChange={({ open }) => setFabOpen(open)}
+                //        visible
+                //        icon={fabOpen ? 'minus' : 'plus'}
+                //        actions={[
+                //            {
+                //                icon: 'glass-mug',
+                //                label: 'Add Beers',
+                //                onPress: () => console.log('Pressed star'),
+                //            },
+                //            {
+                //                icon: 'store-plus',
+                //                label: 'Add Bar',
+                //                onPress: () => console.log('Pressed email'),
+                //            },
+                //            {
+                //                icon: 'bell',
+                //                label: 'Specials Reminders',
+                //                onPress: () => console.log('Pressed notifications'),
+                //            },
+                //        ]}
+                //        onPress={() => {
+                //            if (fabOpen) {
+                //                // do something if the speed dial is open
+                //            }
+                //        }}
+                //    />
+                //</Portal>
             )}
 
         </View>

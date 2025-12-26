@@ -310,39 +310,7 @@ export default function BeersScreen() {
 
                     </Modal>
                 </Portal>
-                <Portal>
-                    <FAB.Group
-                        style={{ marginBottom: 80 }}
-                        open={fabOpen}
-                        onStateChange={({ open }) => setFabOpen(open)}
-                        visible
-                        icon={fabOpen ? 'minus' : 'plus'}
-                        actions={[
-                            {
-                                icon: 'glass-mug',
-                                label: 'Add Beers',
-                                onPress: () => console.log('Pressed star'),
-                            },
-                            {
-                                icon: 'store-plus',
-                                label: 'Add Bar',
-                                onPress: () => console.log('Pressed email'),
-                            },
-                            {
-                                icon: 'bell',
-                                label: 'Specials Reminders',
-                                onPress: () => console.log('Pressed notifications'),
-                            },
-                        ]}
-                        onPress={() => {
-                            if (fabOpen) {
-                                // do something if the speed dial is open
-                            }
-                        }}
-                    />
-                </Portal>
-
-
+                
                 {renderLocationBanner()}
                     {viewComponents[beerView] || viewComponents["Cards"]}
 

@@ -41,7 +41,6 @@ export interface BarDetails {
     is_brewery?: boolean;
     dist_meters?: number;
     has_active_special?: boolean;
-
 }
 
 export interface BeerLocation {
@@ -156,7 +155,7 @@ export async function searchNearbyBars(
     query: string = ''
 ): Promise<BarDetails[]> {
     try {
-        console.log("lat, lng ", userLat, userLng, "distance, ", radiusMeters);
+        console.log("lat, lng ", userLat, userLng, "distance, ", radiusMeters, "timezone: ", userTimezone);
         const { data, error } = await supabase
             .rpc('nearby_bars', {
                 user_lat: userLat,
@@ -167,7 +166,7 @@ export async function searchNearbyBars(
 
         if (error) throw error;
 
-        console.log("Hitting up spatial DB for beers!!!!", data);
+        console.log("$#%$#@%^^%(&*)(+_Hitting up spatial DB for bars(*^&E%$#$*^(&*^!!!!", data);
         // Filter by query if provided (since we can't pass query to the function)
         let filteredData = data;
         console.log("data from nearby_bars rpc:", data);
