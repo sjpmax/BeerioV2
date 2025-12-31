@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { LocationProvider } from '@/contexts/LocationContext';
 function BeerIcon({ focused }: { focused: boolean }) {
     return (
         <View className={`w-6 h-6 items-center justify-center ${focused ? 'opacity-100' : 'opacity-50'}`}>
@@ -31,6 +31,7 @@ export default function TabLayout() {
     const insets = useSafeAreaInsets();
     const theme = useTheme();
     return (
+        <LocationProvider>
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: theme.colors.accentGold,
@@ -73,6 +74,7 @@ export default function TabLayout() {
                     tabBarIcon: ({ focused }) => <AccountIcon focused={focused} />,
                 }}
             />
-        </Tabs>
+            </Tabs>
+        </LocationProvider>
     );
 }

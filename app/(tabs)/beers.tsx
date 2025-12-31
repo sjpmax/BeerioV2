@@ -2,14 +2,17 @@ import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
 import BeerFilterModal from '@/components/_beer_filter_modal';
 import BeerMapView from '@/components/_beer_map_view';
-import useLocation from '@/hooks/useLocation';
 import { GroupedBeer, searchNearbyBeers } from '@/utils/supabase';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator, FAB } from 'react-native-paper';
+import { LocationContext } from '@/contexts/LocationContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+
 export default function BeersScreen() {
+
+    const { location, status } = useContext(LocationContext);
     const [beerView, setBeerView] = useState("Cards");
     const beerViewTitles = ['Cards', 'Table', 'Map'];
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});
@@ -21,7 +24,6 @@ export default function BeersScreen() {
     const handleBeerViewChange = (value: string) => {
         setBeerView(value);
     }
-    const { location, status, refreshLocation, getDistanceMessage } = useLocation();
     const theme = useTheme();
     const [showFilters, setShowFilters] = useState(false);
     const modalStyles = {

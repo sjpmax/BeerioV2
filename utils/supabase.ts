@@ -147,6 +147,23 @@ console.log("Hitting up the DB!!!!", data);
     }
 }
 
+export async function getBarDetails(barId: string): Promise<BarDetails | null> {
+    try {
+        const { data, error } = await supabase 
+            .from('bars')
+            .select('*')
+            .eq('id', barId)
+            .single();
+
+        if (error) throw error;
+        console.log("Fetched bar details:", data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching bar details:', error);
+        return null;
+    }
+}
+
 export async function searchNearbyBars(
     userLat: number,
     userLng: number,

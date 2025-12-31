@@ -43,22 +43,22 @@ export default function RootLayout() {
     const { isLoggedIn } = useAuthContext()
 
     return (
-    <AuthProvider>
-        <PaperProvider theme={Theme} >
-            <Stack
-                screenOptions={{
-                   headerStyle: {
-          backgroundColor: '#f4511e',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-                }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }}  />
-            </Stack>
-            <StatusBar style="auto" />
-        </PaperProvider>
+        <AuthProvider>
+            <PaperProvider theme={Theme} >
+                <Stack
+                    screenOptions={{
+                        headerStyle: {
+                            backgroundColor: '#f4511e',
+                        },
+                        headerTintColor: '#fff',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                        },
+                    }}>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                </Stack>
+                <StatusBar style="auto" />
+            </PaperProvider>
         </AuthProvider>
     );
 }
