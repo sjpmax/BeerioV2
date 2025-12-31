@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocationContext } from '@/contexts/LocationContext';
 
 export default function BeersScreen() {
-    const { location, status } = useLocationContext();
+    const { location, status, getDistanceMessage } = useLocationContext();
     const [beerView, setBeerView] = useState("Cards");
     const beerViewTitles = ['Cards', 'Table', 'Map'];
     const [groupedBeers, setGroupedBeers] = useState<Record<string, GroupedBeer>>({});

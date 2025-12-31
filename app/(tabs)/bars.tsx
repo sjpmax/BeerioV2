@@ -9,7 +9,7 @@ import { Link, router } from 'expo-router';
 
 import { useLocationContext } from '@/contexts/LocationContext';
 export default function BarsScreen() {
-    const { location, status } = useLocationContext();
+    const { location, status, getDistanceMessage } = useLocationContext();
     const [distanceFilter, setDistanceFilter] = useState(2);
     const [isLoading, setIsLoading] = useState(true);
     const [bars, setBars] = useState<BarDetails[]>([]);

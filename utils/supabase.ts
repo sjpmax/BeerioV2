@@ -64,13 +64,20 @@ export interface GroupedBeer {
     brewery?: string;
     source: 'beerdb' | 'local';
     best_cost_per_oz?: number;
-    best_price?: number; 
-    best_size?: number;  
+    best_price?: number;
+    best_size?: number;
     locations: BeerLocation[];
 }
 
+export interface States {
+    id: number,
+    name: string,
+    abbreviation: string,
+    country: number
+}
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables');
+    console.error('Missing Supabase environment variables');
 }
 
 export const ExpoAsyncStorageAdapter = {
@@ -102,12 +109,12 @@ export const ExpoSecureStoreAdapter = {
 };
 
 export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
-  auth: {
-    storage: ExpoAsyncStorageAdapter, 
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
+    auth: {
+        storage: ExpoAsyncStorageAdapter,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+    },
 });
 
 //looks at our own supabase DB for beers matching the query
@@ -121,7 +128,7 @@ export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
             .ilike('type', `%${query}%`)
             .limit(50);
         if (error) throw error;
-console.log("Hitting up the DB!!!!", data);
+        console.log("Hitting up the DB!!!!", data);
         return data.map(beer => ({
             id: beer.beer_id.toString(),
             name: beer.beer_name,
@@ -149,7 +156,7 @@ console.log("Hitting up the DB!!!!", data);
 
 export async function getBarDetails(barId: string): Promise<BarDetails | null> {
     try {
-        const { data, error } = await supabase 
+        const { data, error } = await supabase
             .from('bars')
             .select('*')
             .eq('id', barId)
@@ -162,6 +169,21 @@ export async function getBarDetails(barId: string): Promise<BarDetails | null> {
         console.error('Error fetching bar details:', error);
         return null;
     }
+}
+
+export async function getStates(): Promise<States[] | null> {
+    try {
+        const { data, error } = await supabase
+            .from('States')
+            .select('*');
+        if (error) throw error;
+        console.log("Fetched bar details:", data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching bar details:', error);
+        return null;
+    }
+
 }
 
 export async function searchNearbyBars(
@@ -198,56 +220,56 @@ export async function searchNearbyBars(
 
 // Hot list of beers nearby based on lat/lng and radius
 export async function searchNearbyBeers(
-  userLat: number, 
-  userLng: number, 
-  radiusMeters: number = 3000,
-  query: string = ''
+    userLat: number,
+    userLng: number,
+    radiusMeters: number = 3000,
+    query: string = ''
 ): Promise<BeerSuggestion[]> {
     try {
         console.log("lat, lng ", userLat, userLng, "distance, ", radiusMeters);
-    const { data, error } = await supabase
-      .rpc('nearby_beers', { 
-        user_lat: userLat, 
-        user_lng: userLng, 
-        radius_meters: radiusMeters 
-      });
-    
-    if (error) throw error;
-    
-    console.log("Hitting up spatial DB for beers!!!!", data);
-    
-    // Filter by query if provided (since we can't pass query to the function)
-    let filteredData = data;
-    if (query) {
-      filteredData = data.filter(beer => 
-        beer.type?.toLowerCase().includes(query.toLowerCase()) ||
-        beer.beer_name?.toLowerCase().includes(query.toLowerCase())
-      );
+        const { data, error } = await supabase
+            .rpc('nearby_beers', {
+                user_lat: userLat,
+                user_lng: userLng,
+                radius_meters: radiusMeters
+            });
+
+        if (error) throw error;
+
+        console.log("Hitting up spatial DB for beers!!!!", data);
+
+        // Filter by query if provided (since we can't pass query to the function)
+        let filteredData = data;
+        if (query) {
+            filteredData = data.filter(beer =>
+                beer.type?.toLowerCase().includes(query.toLowerCase()) ||
+                beer.beer_name?.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+
+        return filteredData.map(beer => ({
+            id: beer.beer_id.toString(),
+            name: beer.beer_name,
+            cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
+            price: beer.price != null ? Number(beer.price) : 0,
+            abv: beer.abv?.toString() || '0',
+            size: beer.size_oz != null ? Number(beer.size_oz) : 12,
+            type: beer.type || 'Unknown',
+            type_group: beer.type_group || 'Unknown',
+            serving_type: beer.serving_type || 'Unknown',
+            serving_description: beer.serving_description || 'No description',
+            source: 'local' as const,
+            bar_name: beer.bar_name,
+            bar_address: beer.bar_address,
+            bar_long: beer.bar_long,
+            bar_lat: beer.bar_lat,
+            // Add distance for future use
+            distance_meters: beer.distance_meters,
+        }));
+    } catch (error) {
+        console.error('Spatial search error:', error);
+        return [];
     }
-    
-    return filteredData.map(beer => ({
-      id: beer.beer_id.toString(),
-      name: beer.beer_name,
-      cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
-      price: beer.price != null ? Number(beer.price) : 0,
-      abv: beer.abv?.toString() || '0',
-      size: beer.size_oz != null ? Number(beer.size_oz) : 12,
-      type: beer.type || 'Unknown',
-      type_group: beer.type_group || 'Unknown',
-      serving_type: beer.serving_type || 'Unknown',
-      serving_description: beer.serving_description || 'No description',
-      source: 'local' as const,
-      bar_name: beer.bar_name,
-      bar_address: beer.bar_address,
-      bar_long: beer.bar_long,
-      bar_lat: beer.bar_lat,
-      // Add distance for future use
-      distance_meters: beer.distance_meters,
-    }));
-  } catch (error) {
-    console.error('Spatial search error:', error);
-    return [];
-  }
 }
 
 

@@ -80,25 +80,22 @@ export default function BeerTableRow({
           marginBottom: 6,
         }}>
           {/* Rest of your expanded content stays the same */}
-          <View style={{ flexDirection: 'row', paddingTop: 4 }}>
-            <View style={{ flex: 1 }}></View>
-            <Text style={{ flex: 1, fontWeight: 'bold', color: 'rgb(54, 199, 124)' }}>{groupedBeers.type}</Text>
+                  <View style={{ flexDirection: 'row', paddingTop: 4 }}>
+                      <Text style={{ flex: 2, fontWeight: 'bold', color: 'rgb(54, 199, 124)', paddingLeft:10 }}>{groupedBeers.type}</Text>
             <Text style={{ flex: 1, fontWeight: 'bold', color: 'rgb(54, 199, 124)' }}>{groupedBeers.abv}%</Text>
             <View style={{ flex: 6 }}></View>
           </View>
 
           {/* Your existing expanded content... */}
           <View style={{ flexDirection: 'row' }}>
-            <View style={{ flex: 1 }}></View>
-            <Text style={{ flex: 3, fontWeight: 'bold', color: phillyColors.mutedGold }}>Location</Text>
+                      <Text style={{ flex: 3, fontWeight: 'bold', color: phillyColors.mutedGold, paddingLeft: 10 }}>Location</Text>
             <Text style={{ flex: 1, fontWeight: 'bold', color: phillyColors.mutedGold }}>Cost</Text>
             <Text style={{ flex: 1, fontWeight: 'bold', color: phillyColors.mutedGold }}>Size</Text>
             <Text style={{ flex: 1, fontWeight: 'bold', color: phillyColors.mutedGold }}>$/Oz</Text>
           </View>
 
           <View style={{ flexDirection: 'row' }}>
-            <View style={{ flex: 1 }}></View>
-            <View style={{ flex: 9, paddingLeft: 15, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                      <View style={{ flex: 9, paddingLeft: 15, backgroundColor: 'rgba(255,255,255,0.05)', paddingLeft: 10 }}>
               {groupedBeers.locations.map((location: any, idx: number) => (
                 <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
                   <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
