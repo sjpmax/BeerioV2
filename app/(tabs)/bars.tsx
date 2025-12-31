@@ -1,16 +1,15 @@
 ﻿import { supabase, searchNearbyBars, BarDetails } from '@/utils/supabase';
 
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator, FAB, Card, Icon } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Localization from 'expo-localization';
 import { Link, router } from 'expo-router';
-import { LocationContext } from '@/contexts/LocationContext';
+
+import { useLocationContext } from '@/contexts/LocationContext';
 export default function BarsScreen() {
-
-
-    const { location, status } = useContext(LocationContext);
+    const { location, status } = useLocationContext();
     const [distanceFilter, setDistanceFilter] = useState(2);
     const [isLoading, setIsLoading] = useState(true);
     const [bars, setBars] = useState<BarDetails[]>([]);
