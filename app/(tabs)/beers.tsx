@@ -79,10 +79,6 @@ export default function BeersScreen() {
         if (!rawBeers.length) return;
 
 
-        console.log("****************************************");
-        console.log("price filter", priceFilter);
-        console.log("****************************************");
-
         // All your current logic goes here:
         const filteredResults = rawBeers.filter(beer => {
             if (!servingTypes.has("individual")) {
@@ -91,8 +87,6 @@ export default function BeersScreen() {
             if (!servingTypes.has("group")) {
                 if (["Pitcher", "Growler", "Crowler", "Bucket", "Tower"].includes(beer.serving_type)) return false;
             }
-
-            console.log("Beer:", beer.name, "Price:", beer.price, "price filter:", priceFilter, "ID: ", beer.id, "\n");
             // Price filter
             if (beer.price && beer.price > priceFilter) return false;
 

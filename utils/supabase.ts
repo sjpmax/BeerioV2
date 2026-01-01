@@ -170,17 +170,54 @@ export async function getBarDetails(barId: string): Promise<BarDetails | null> {
         return null;
     }
 }
+export async function getBarBeers(barId: string) {
+    try {
+        const { data, error } = await supabase
+            .from('beers')
+            .select(`
+            id,
+                price,
+                size_oz,
+                canonical_beers!inner (
+                    name,
+                    abv,
+                    breweries (
+                        name
+                    )
+                ),
+                serving_types (
+                    name
+                )
+            `)
+            .eq('bar_id', barId);
+
+        if (error) throw error;
+        // Transform the nested structure to match your SQL columns
+        const transformed = data?.map(beer => ({
+            id: beer.id,
+            price: beer.price,
+            size_oz: beer.size_oz,
+            beer_name: beer.canonical_beers?.name,
+            abv: beer.canonical_beers?.abv,
+            serving_type: beer.serving_types?.name,
+            brewery: beer.canonical_beers?.breweries?.name
+        }));
+        return transformed;
+    } catch (error) {
+        console.error('Error fetching bar beers:', error);
+        return null;
+    }
+}
 
 export async function getStates(): Promise<States[] | null> {
     try {
         const { data, error } = await supabase
-            .from('States')
+            .from('states')
             .select('*');
         if (error) throw error;
-        console.log("Fetched bar details:", data);
         return data;
     } catch (error) {
-        console.error('Error fetching bar details:', error);
+        console.error('Error fetching states:', error);
         return null;
     }
 

@@ -56,7 +56,6 @@ export default function BeerCardView({
     // Make sure groupedBeers is an array before passing it
     const beersArray = Array.isArray(groupedBeers) ? groupedBeers : Object.values(groupedBeers);
     const distances = calculateDistancesFromArray(location, beersArray);
-    console.log("potato", beersArray);
     return (
         <List.Section title="" className="flex flex-row p-5">
             <FlatList

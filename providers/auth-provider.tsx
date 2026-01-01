@@ -26,7 +26,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
                 data: { session },
                 error,
             } = await supabase.auth.getSession()
-            console.log('Initial session fetch:', { session, error });
             if (error) {
                 console.error('Error fetching session:', error)
             }
@@ -39,7 +38,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
-            console.log('Auth state changed:', { event: _event, session })
             setSession(session)
         })
 
