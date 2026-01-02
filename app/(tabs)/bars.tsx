@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator, FAB, Card, Icon } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Localization from 'expo-localization';
 import { Link, router } from 'expo-router';
 
@@ -92,7 +91,6 @@ export default function BarsScreen() {
                                                         label: 'Edit',
                                                         icon: 'pencil',
                                                         onPress: () => {
-                                                            console.log("!!!!!!Editing bar: ", item.id);
                                                             router.push({
                                                                 pathname: '/bar-edit',
                                                                 params: { barId: item.id }

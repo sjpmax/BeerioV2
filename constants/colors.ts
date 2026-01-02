@@ -10,5 +10,6 @@ export const phillyColors = {
     accent: '#FFA500',         // Call-to-action orange
     lightNavy: '#004080',     // Lighter navy for subtle backgrounds
     popLight: '#2C4A5E',
-    cardBG: '#3B6E92'
+    cardBG: '#3B6E92',
+    crimson: '#bb0025',       
 };

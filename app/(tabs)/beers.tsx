@@ -1,4 +1,4 @@
-import BeerCardView from '@/components/_beer-card-view';
+﻿import BeerCardView from '@/components/_beer-card-view';
 import BeerTableView from '@/components/_beer-table-view';
 import BeerFilterModal from '@/components/_beer_filter_modal';
 import BeerMapView from '@/components/_beer_map_view';
@@ -6,7 +6,6 @@ import { GroupedBeer, searchNearbyBeers } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, IconButton, Modal, Portal, SegmentedButtons, Snackbar, useTheme, ActivityIndicator, FAB } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useLocationContext } from '@/contexts/LocationContext';
 
@@ -231,7 +230,7 @@ export default function BeersScreen() {
                 </Button>
                 <View style={{ flexDirection: 'row', marginTop: 25 }}>
                     <View style={{ flex: 1 }}></View>
-                    <View style={{ flex: 3 }} >
+                    <View style={{ flex: 4 }} >
                         <SegmentedButtons
                             value={beerView}
                             onValueChange={handleBeerViewChange}

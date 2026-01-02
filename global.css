@@ -20,18 +20,19 @@ export const phillyColors = {
 */
 
 :root {
-  --color-navy: #0A1929;
-  --color-deepNavy: #000D1A;
-  --color-midnight: #001F3F;
-  --color-lighterNavy: #053261;
-  --color-gold: #F4C430;
-  --color-mutedGold: #C9A961;
-  --color-lightGold: #FFD966;
-  --color-darkGold: #8B7355;
-  --color-accent: #FFA500;
-  --color-lightNavy: #004080;
-  --color-popLight: #2C4A5E;
-  --color-cardBG: #3B6E92;
+    --color-navy: #0A1929;
+    --color-deepNavy: #000D1A;
+    --color-midnight: #001F3F;
+    --color-lighterNavy: #053261;
+    --color-gold: #F4C430;
+    --color-mutedGold: #C9A961;
+    --color-lightGold: #FFD966;
+    --color-darkGold: #8B7355;
+    --color-accent: #FFA500;
+    --color-lightNavy: #004080;
+    --color-popLight: #2C4A5E;
+    --color-cardBG: #3B6E92;
+    --color-crimson: #DC143C;
 }   
 
 

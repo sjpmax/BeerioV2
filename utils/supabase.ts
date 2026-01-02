@@ -154,6 +154,8 @@ export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
     }
 }
 
+
+
 export async function getBarDetails(barId: string): Promise<BarDetails | null> {
     try {
         const { data, error } = await supabase
@@ -170,38 +172,77 @@ export async function getBarDetails(barId: string): Promise<BarDetails | null> {
         return null;
     }
 }
+
 export async function getBarBeers(barId: string) {
     try {
         const { data, error } = await supabase
-            .from('beers')
+            .from('bars')
             .select(`
-            id,
+              *,
+              beers (
+                id,
                 price,
                 size_oz,
                 canonical_beers!inner (
-                    name,
-                    abv,
-                    breweries (
-                        name
-                    )
+                  name,
+                  abv,
+                  breweries (
+                    name
+                  )
                 ),
                 serving_types (
-                    name
+                  name
                 )
+              ),
+              bar_specials(
+                  id,
+                  day_of_week,
+                    special_type,
+                    time_start,
+                    time_end,
+                    description,
+                    is_active
+              )
             `)
-            .eq('bar_id', barId);
+            .eq('id', barId)
+            .single()
+        console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&Fetched bar beers raw data:", data);
 
         if (error) throw error;
         // Transform the nested structure to match your SQL columns
-        const transformed = data?.map(beer => ({
-            id: beer.id,
-            price: beer.price,
-            size_oz: beer.size_oz,
-            beer_name: beer.canonical_beers?.name,
-            abv: beer.canonical_beers?.abv,
-            serving_type: beer.serving_types?.name,
-            brewery: beer.canonical_beers?.breweries?.name
-        }));
+
+      /*  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Fetched bar beers raw data: { "added_by_user_id": null, "beers": [{ "canonical_beers": [Object], "id": 85, "price": 24, "serving_types": [Object], "size_oz": 72 }, { "canonical_beers": [Object], "id": 86, "price": 6.5, "serving_types": [Object], "size_oz": 12 }, { "canonical_beers": [Object], "id": 87, "price": 8, "serving_types": [Object], "size_oz": 16 }, { "canonical_beers": [Object], "id": 88, "price": 6, "serving_types": [Object], "size_oz": 16 }], "city": "Philadelphia", "country_id": 1, "created_at": "2025-11-25T01:11:54.813163", "daily_specials": null, "daily_specials_data": null, "gis_location": "0101000020E6100000CCB96F1008CB52C0C86361E355FA4340", "google_place_id": null, "happy_hour_data": null, "happy_hour_days": null, "happy_hour_discount_amount": null, "happy_hour_discount_percent": null, "happy_hour_discount_type": null, "happy_hour_end": null, "happy_hour_start": null, "id": "66373acd-0066-4586-b7c8-4674265fd3bd", "is_brewery": false, "latitude": 39.9557461, "longitude": -75.1723672, "name": "City Tap Logan Square", "pending_review": true, "rejection_reason": null, "reviewed_at": null, "reviewed_by": null, "special_type": null, "state_id": 38, "status": "approved", "street_address": "2 Logan Square", "street_address_line2": null, "street_address_line3": null, "submitted_at": "2025-11-25T01:11:54.813163+00:00", "submitted_by": null, "website": null, "zip": "19103" }*/
+
+        const barDetails = data;
+        const transformed = {
+            barDetails: {
+                barName: barDetails.name,
+                barStreetAddress: barDetails.street_address,
+                barCity: barDetails.city,
+                barStateId: barDetails.state_id,
+                barZip: barDetails.zip
+            },
+            beersOffered: barDetails.beers.map((beerOffering: any) => ({
+                id: beerOffering.id,
+                name: beerOffering.canonical_beers.name,
+                price: beerOffering.price,
+                size_oz: beerOffering.size_oz,
+                abv: beerOffering.canonical_beers.abv,
+                brewery: beerOffering.canonical_beers.breweries.name,
+                serving_type: beerOffering.serving_types.name,
+                serving_icon: ["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beerOffering.serving_types.name) ? "account-group" : "account-tie"       
+
+            })),
+            barSpecials: barDetails.bar_specials.map((special: any) => ({
+                id: special.id,
+                day_of_week: special.day_of_week,
+                special_type: special.special_type,
+                time_start: special.time_start,
+                time_end: special.time_end,
+                description: special.description,
+                is_active: special.is_active
+            }))
+        };
         return transformed;
     } catch (error) {
         console.error('Error fetching bar beers:', error);

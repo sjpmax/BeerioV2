@@ -35,6 +35,7 @@ const Theme = {
         popLight: phillyColors.popLight,
         accentGold: phillyColors.accent,
         cardBG: phillyColors.cardBG,
+        crimson: phillyColors.crimson,
     },
 };
 
