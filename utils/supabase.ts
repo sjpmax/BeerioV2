@@ -6,7 +6,7 @@ import 'expo-sqlite/localStorage/install';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-export interface BeerSuggestion {
+export interface barBeerSuggestion {
     id: string;
     name: string;
     abv: string;
@@ -27,6 +27,18 @@ export interface BeerSuggestion {
     serving_type?: string;
     serving_description?: string;
 }
+
+export interface canonicalBeerSuggestion {
+    id: string;
+    name: string;
+    abv: string;
+    type: string;
+    type_group?: string;
+    brewery?: string;
+    aliases?: string[];
+}
+
+
 
 
 export interface BarDetails {
@@ -116,45 +128,72 @@ export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
         detectSessionInUrl: false,
     },
 });
+////looks at our own supabase DB for beers matching the query
+//export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
 
-//looks at our own supabase DB for beers matching the query
-export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
 
+//    try {
+//        const { data, error } = await supabase
+//            .from('beer_offerings')
+//            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat, type_group, serving_type, serving_description')
+//            .ilike('type', `%${query}%`)
+//            .limit(50);
+//        if (error) throw error;
+//        console.log("Hitting up the DB!!!!", data);
+//        return data.map(beer => ({
+//            id: beer.beer_id.toString(),
+//            name: beer.beer_name,
+//            // keep value_score as a number for easier grading
+//            cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
+//            price: beer.price != null ? Number(beer.price) : 0,
+//            abv: beer.abv?.toString() || '0',
+//            size: beer.size_oz != null ? Number(beer.size_oz) : 12,
+//            type: beer.type || 'Unknown',
+//            type_group: beer.type_group || 'Unknown',
+//            serving_type: beer.serving_type || 'Unknown',
+//            serving_description: beer.serving_description || 'No description',
+//            source: 'local' as const,
+//            bar_name: beer.bar_name,
+//            bar_address: beer.bar_address,
+//            bar_long: beer.bar_long,
+//            bar_lat: beer.bar_lat,
+
+//        }));
+//    } catch (error) {
+//        console.error('Local search error:', error);
+//        return [];
+//    }
+//}
+
+
+//select * from canonical_beers where LOWER(name) like '%gui%'
+
+export async function searchCanonicalBeers(query: string): Promise<canonicalBeerSuggestion[]> {
 
     try {
         const { data, error } = await supabase
-            .from('beer_offerings')
-            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat, type_group, serving_type, serving_description')
-            .ilike('type', `%${query}%`)
+            .from('canonical_beers')
+            .select('id, name, abv, type, breweries (name), type_group, serving_types (name, description)')
+            .ilike('name', `%${query}%`)
+            .or('aliases.ilike.%' + query + '%,breweries.name.ilike.%' + query + '%') 
             .limit(50);
         if (error) throw error;
-        console.log("Hitting up the DB!!!!", data);
+            console.log("Hitting up the canonical beers DB!!!!", data);
+
         return data.map(beer => ({
-            id: beer.beer_id.toString(),
-            name: beer.beer_name,
-            // keep value_score as a number for easier grading
-            cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
-            price: beer.price != null ? Number(beer.price) : 0,
+            id: beer.id.toString(),
+            name: beer.name,
             abv: beer.abv?.toString() || '0',
-            size: beer.size_oz != null ? Number(beer.size_oz) : 12,
             type: beer.type || 'Unknown',
             type_group: beer.type_group || 'Unknown',
-            serving_type: beer.serving_type || 'Unknown',
-            serving_description: beer.serving_description || 'No description',
-            source: 'local' as const,
-            bar_name: beer.bar_name,
-            bar_address: beer.bar_address,
-            bar_long: beer.bar_long,
-            bar_lat: beer.bar_lat,
-
+            brewery: beer.breweries?.name || 'Unknown',
+            aliases: [], // You can implement alias fetching if needed
         }));
     } catch (error) {
-        console.error('Local search error:', error);
+        console.error('Canonical beer search error:', error);
         return [];
     }
 }
-
-
 
 export async function getBarDetails(barId: string): Promise<BarDetails | null> {
     try {
@@ -211,7 +250,7 @@ export async function getBarBeers(barId: string) {
         if (error) throw error;
         // Transform the nested structure to match your SQL columns
 
-      /*  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Fetched bar beers raw data: { "added_by_user_id": null, "beers": [{ "canonical_beers": [Object], "id": 85, "price": 24, "serving_types": [Object], "size_oz": 72 }, { "canonical_beers": [Object], "id": 86, "price": 6.5, "serving_types": [Object], "size_oz": 12 }, { "canonical_beers": [Object], "id": 87, "price": 8, "serving_types": [Object], "size_oz": 16 }, { "canonical_beers": [Object], "id": 88, "price": 6, "serving_types": [Object], "size_oz": 16 }], "city": "Philadelphia", "country_id": 1, "created_at": "2025-11-25T01:11:54.813163", "daily_specials": null, "daily_specials_data": null, "gis_location": "0101000020E6100000CCB96F1008CB52C0C86361E355FA4340", "google_place_id": null, "happy_hour_data": null, "happy_hour_days": null, "happy_hour_discount_amount": null, "happy_hour_discount_percent": null, "happy_hour_discount_type": null, "happy_hour_end": null, "happy_hour_start": null, "id": "66373acd-0066-4586-b7c8-4674265fd3bd", "is_brewery": false, "latitude": 39.9557461, "longitude": -75.1723672, "name": "City Tap Logan Square", "pending_review": true, "rejection_reason": null, "reviewed_at": null, "reviewed_by": null, "special_type": null, "state_id": 38, "status": "approved", "street_address": "2 Logan Square", "street_address_line2": null, "street_address_line3": null, "submitted_at": "2025-11-25T01:11:54.813163+00:00", "submitted_by": null, "website": null, "zip": "19103" }*/
+        /*  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Fetched bar beers raw data: { "added_by_user_id": null, "beers": [{ "canonical_beers": [Object], "id": 85, "price": 24, "serving_types": [Object], "size_oz": 72 }, { "canonical_beers": [Object], "id": 86, "price": 6.5, "serving_types": [Object], "size_oz": 12 }, { "canonical_beers": [Object], "id": 87, "price": 8, "serving_types": [Object], "size_oz": 16 }, { "canonical_beers": [Object], "id": 88, "price": 6, "serving_types": [Object], "size_oz": 16 }], "city": "Philadelphia", "country_id": 1, "created_at": "2025-11-25T01:11:54.813163", "daily_specials": null, "daily_specials_data": null, "gis_location": "0101000020E6100000CCB96F1008CB52C0C86361E355FA4340", "google_place_id": null, "happy_hour_data": null, "happy_hour_days": null, "happy_hour_discount_amount": null, "happy_hour_discount_percent": null, "happy_hour_discount_type": null, "happy_hour_end": null, "happy_hour_start": null, "id": "66373acd-0066-4586-b7c8-4674265fd3bd", "is_brewery": false, "latitude": 39.9557461, "longitude": -75.1723672, "name": "City Tap Logan Square", "pending_review": true, "rejection_reason": null, "reviewed_at": null, "reviewed_by": null, "special_type": null, "state_id": 38, "status": "approved", "street_address": "2 Logan Square", "street_address_line2": null, "street_address_line3": null, "submitted_at": "2025-11-25T01:11:54.813163+00:00", "submitted_by": null, "website": null, "zip": "19103" }*/
 
         const barDetails = data;
         const transformed = {
@@ -230,7 +269,7 @@ export async function getBarBeers(barId: string) {
                 abv: beerOffering.canonical_beers.abv,
                 brewery: beerOffering.canonical_beers.breweries.name,
                 serving_type: beerOffering.serving_types.name,
-                serving_icon: ["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beerOffering.serving_types.name) ? "account-group" : "account-tie"       
+                serving_icon: ["Can", "Bottle", "Draft", "Nitro", "Cask"].includes(beerOffering.serving_types.name) ? "account-group" : "account-tie"
 
             })),
             barSpecials: barDetails.bar_specials.map((special: any) => ({
@@ -302,7 +341,7 @@ export async function searchNearbyBeers(
     userLng: number,
     radiusMeters: number = 3000,
     query: string = ''
-): Promise<BeerSuggestion[]> {
+): Promise<barBeerSuggestion[]> {
     try {
         console.log("lat, lng ", userLat, userLng, "distance, ", radiusMeters);
         const { data, error } = await supabase

@@ -1,11 +1,11 @@
 ﻿import { useLocalSearchParams, Stack } from 'expo-router';
 import { FlatList, View, TouchableOpacity, ScrollView } from 'react-native';
-import { getBarDetails, getStates, States, getBarBeers, ExpoAsyncStorageAdapter } from '../utils/supabase';
+import { getBarDetails, getStates, States, getBarBeers, ExpoAsyncStorageAdapter, searchCanonicalBeers } from '../utils/supabase';
 import { Button, Text, IconButton, Modal, Portal, Snackbar, useTheme, ActivityIndicator, FAB, Card, Icon, TextInput, Dialog, Divider } from 'react-native-paper';
 import { PaperSelect } from 'react-native-paper-select';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Autocomplete } from 'react-native-autocomplete-input';
+import Autocomplete  from 'react-native-autocomplete-input';
 
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -290,6 +290,12 @@ export default function barEdit() {
                                     />
                                 </View>
                                 <Divider style={{ marginVertical: 10 }} />
+                                <View style={{ flexDirection: 'column', flex: 1 }}>
+                                    {/*                                    use autocomplete to search this searchCanonicalBeers()*/}
+                                   
+
+                                  </View>
+
                                 <View style={{ flex: 10 }}>
                                     <TextInput label="Name" value={newBeerName} onChangeText={setNewBeerName} />
                                     <TextInput label="Brewery" value={newBrewery} onChangeText={setNewBrewery} />
@@ -297,7 +303,7 @@ export default function barEdit() {
                                     <TextInput label="Price" value={newPrice} onChangeText={setNewPrice} />
                                     <TextInput label="Serving Type" value={newServingType} onChangeText={setNewServingType} />
                                     <Button mode="contained" onPress={() => console.log('Add beer')} style={{ marginTop: 20 }}>Add Beer</Button>
-                                </View>
+                                ViewAutocomplete</View>
                             </View>
 
                         </Modal>
