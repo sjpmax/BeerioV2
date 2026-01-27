@@ -169,16 +169,22 @@ export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
 //select * from canonical_beers where LOWER(name) like '%gui%'
 
 export async function searchCanonicalBeers(query: string): Promise<canonicalBeerSuggestion[]> {
-
+    console.log("$##@$@#$#@$@#$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@Searching canonical beers for query:", query);
     try {
-        const { data, error } = await supabase
-            .from('canonical_beers')
-            .select('id, name, abv, type, breweries (name), type_group, serving_types (name, description)')
-            .ilike('name', `%${query}%`)
-            .or('aliases.ilike.%' + query + '%,breweries.name.ilike.%' + query + '%') 
-            .limit(50);
+        const term = query.replace(/%/g, '');
+        const wildcard = `%${term}%`;
+        console.log("Searching canonical beers with wildcard:", wildcard);
+
+        const { data, error } = await supabase.rpc('search_canonical_beers', { q: term });
+        console.log("++++++++++++++++++++++++++++++++++++++++++++++++Canonical beer search results:", data, error);
         if (error) throw error;
-            console.log("Hitting up the canonical beers DB!!!!", data);
+
+        // Map to "beer - brewery" strings (handle missing brewery)
+        const list = (data || []).map(row => {
+            const beerName = row.name ?? '';
+            const breweryName = row.breweries?.name ?? '';
+            return `${beerName} - ${breweryName}`;
+        });    
 
         return data.map(beer => ({
             id: beer.id.toString(),
@@ -186,13 +192,13 @@ export async function searchCanonicalBeers(query: string): Promise<canonicalBeer
             abv: beer.abv?.toString() || '0',
             type: beer.type || 'Unknown',
             type_group: beer.type_group || 'Unknown',
-            brewery: beer.breweries?.name || 'Unknown',
+            brewery: beer.breweries?.name || 'Unknown', 
             aliases: [], // You can implement alias fetching if needed
         }));
     } catch (error) {
         console.error('Canonical beer search error:', error);
-        return [];
-    }
+        return []; 
+    }  
 }
 
 export async function getBarDetails(barId: string): Promise<BarDetails | null> {

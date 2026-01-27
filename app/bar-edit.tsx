@@ -5,7 +5,7 @@ import { Button, Text, IconButton, Modal, Portal, Snackbar, useTheme, ActivityIn
 import { PaperSelect } from 'react-native-paper-select';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Autocomplete  from 'react-native-autocomplete-input';
+import { Autocomplete, AutocompleteScrollView } from 'react-native-paper-autocomplete';
 
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -40,7 +40,30 @@ export default function barEdit() {
     const [newAbv, setNewAbv] = useState('');
     const [newPrice, setNewPrice] = useState('');
     const [newServingType, setNewServingType] = useState('');
+    const [beerQuery, setBeerQuery] = useState('');
+    const [beerSuggestions, setBeerSuggestions] = useState([]);
+    const [selectedBeer, setSelectedBeer] = useState(null);
 
+
+    useEffect(() => {
+        async function fetchBeerSuggestions() {
+
+            const suggestions = await searchCanonicalBeers(beerQuery);
+            setBeerSuggestions(suggestions);
+            console.log("debounce this BABY", suggestions);
+        }
+
+        if (beerQuery) {
+            const timerId = setTimeout(() => {
+                fetchBeerSuggestions();
+            }, 500);
+            return () => {
+                clearTimeout(timerId);
+            };
+        } else {
+            setBeerSuggestions([]);
+        }
+    }, [beerQuery]);
 
 
     useEffect(() => {
@@ -274,11 +297,11 @@ export default function barEdit() {
                     <Portal>
                         <Modal
                             visible={showAddBeer}
-                            onDismiss={() => setShowAddBeer (false)}
+                            onDismiss={() => setShowAddBeer(false)}
                             contentContainerStyle={modalStyles}
                         >
-                            <View style={{ justifyContent: 'space-between',  marginBottom: 10, flex: 1 }}>
-                               {/* Need name, brewery, abv, price, serving type (bottle, can, draft, etc)*/}
+                            <View style={{ justifyContent: 'space-between', marginBottom: 10, flex: 1 }}>
+                                {/* Need name, brewery, abv, price, serving type (bottle, can, draft, etc)*/}
                                 <View style={{ flexDirection: 'row', flex: 1 }}>
                                     <Text style={{ fontSize: 18, marginBottom: 10, color: theme.colors.onSurface, flex: 1 }}>Filter Beers</Text>
                                     <IconButton
@@ -291,10 +314,27 @@ export default function barEdit() {
                                 </View>
                                 <Divider style={{ marginVertical: 10 }} />
                                 <View style={{ flexDirection: 'column', flex: 1 }}>
-                                    {/*                                    use autocomplete to search this searchCanonicalBeers()*/}
-                                   
+                                    <AutocompleteScrollView>
+                                        <Autocomplete
+                                            onChange={(newValue) => {
+                                                console.log({ newValue });
+                                                setSelectedBeer(newValue);
+                                            }}
+                                            getOptionLabel={(item) => item.name}  // ← This tells it how to display
+                                            getOptionValue={(item) => item.id}    // ← This tells it the unique key
+                                            value={selectedBeer}
+                                            options={beerSuggestions}
+                                            inputProps={{
+                                                placeholder: 'Select user',
+                                                // ...all other props which are available in react native paper
+                                                onChangeText: (search) => {
+                                                    setBeerQuery(search);
+                                                },
+                                            }}
+                                        />
+                                    </AutocompleteScrollView>
 
-                                  </View>
+                                </View>
 
                                 <View style={{ flex: 10 }}>
                                     <TextInput label="Name" value={newBeerName} onChangeText={setNewBeerName} />
@@ -303,7 +343,7 @@ export default function barEdit() {
                                     <TextInput label="Price" value={newPrice} onChangeText={setNewPrice} />
                                     <TextInput label="Serving Type" value={newServingType} onChangeText={setNewServingType} />
                                     <Button mode="contained" onPress={() => console.log('Add beer')} style={{ marginTop: 20 }}>Add Beer</Button>
-                                ViewAutocomplete</View>
+                                    </View>
                             </View>
 
                         </Modal>
