@@ -34,7 +34,7 @@ export interface canonicalBeerSuggestion {
     abv: string;
     type: string;
     type_group?: string;
-    brewery?: string;
+    brewery_name?: string;
     aliases?: string[];
 }
 
@@ -128,45 +128,6 @@ export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "", {
         detectSessionInUrl: false,
     },
 });
-////looks at our own supabase DB for beers matching the query
-//export async function searchBeerioDB(query: string): Promise<BeerSuggestion[]> {
-
-
-//    try {
-//        const { data, error } = await supabase
-//            .from('beer_offerings')
-//            .select('beer_id, beer_name, abv, type, price, size_oz, cost_per_alcohol_oz, bar_name, bar_address, bar_long, bar_lat, type_group, serving_type, serving_description')
-//            .ilike('type', `%${query}%`)
-//            .limit(50);
-//        if (error) throw error;
-//        console.log("Hitting up the DB!!!!", data);
-//        return data.map(beer => ({
-//            id: beer.beer_id.toString(),
-//            name: beer.beer_name,
-//            // keep value_score as a number for easier grading
-//            cost_per_alcohol_oz: beer.cost_per_alcohol_oz != null ? parseFloat(Number(beer.cost_per_alcohol_oz).toFixed(2)) : undefined,
-//            price: beer.price != null ? Number(beer.price) : 0,
-//            abv: beer.abv?.toString() || '0',
-//            size: beer.size_oz != null ? Number(beer.size_oz) : 12,
-//            type: beer.type || 'Unknown',
-//            type_group: beer.type_group || 'Unknown',
-//            serving_type: beer.serving_type || 'Unknown',
-//            serving_description: beer.serving_description || 'No description',
-//            source: 'local' as const,
-//            bar_name: beer.bar_name,
-//            bar_address: beer.bar_address,
-//            bar_long: beer.bar_long,
-//            bar_lat: beer.bar_lat,
-
-//        }));
-//    } catch (error) {
-//        console.error('Local search error:', error);
-//        return [];
-//    }
-//}
-
-
-//select * from canonical_beers where LOWER(name) like '%gui%'
 
 export async function searchCanonicalBeers(query: string): Promise<canonicalBeerSuggestion[]> {
     console.log("$##@$@#$#@$@#$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@$#@Searching canonical beers for query:", query);
@@ -182,9 +143,12 @@ export async function searchCanonicalBeers(query: string): Promise<canonicalBeer
         // Map to "beer - brewery" strings (handle missing brewery)
         const list = (data || []).map(row => {
             const beerName = row.name ?? '';
-            const breweryName = row.breweries?.name ?? '';
+            const breweryName = row.brewery_name ?? '';
             return `${beerName} - ${breweryName}`;
-        });    
+        });
+
+        console.log("Canonical beer search mapped list:", list);
+
 
         return data.map(beer => ({
             id: beer.id.toString(),
@@ -192,13 +156,36 @@ export async function searchCanonicalBeers(query: string): Promise<canonicalBeer
             abv: beer.abv?.toString() || '0',
             type: beer.type || 'Unknown',
             type_group: beer.type_group || 'Unknown',
-            brewery: beer.breweries?.name || 'Unknown', 
+            brewery_name: beer.brewery_name || 'Unknown',
             aliases: [], // You can implement alias fetching if needed
         }));
     } catch (error) {
         console.error('Canonical beer search error:', error);
-        return []; 
-    }  
+        return [];
+    }
+}
+
+export async function addPendingBeer(beerData: { name: string, brewery_name: string, abv: number, beer_type_raw: string, bar_id: string, price: number, serving_type_id: string, added_by_user_id: string }): Promise<boolean> {
+    try {
+        const { data, error } = await supabase
+            .from('pending_beers')
+            .insert({
+                beer_name: beerData.name,
+                brewery_name: beerData.brewery_name,
+                abv: beerData.abv,
+                beer_type_raw: beerData.beer_type_raw,
+                bar_id: beerData.bar_id,
+                price: beerData.price,
+                serving_type_id: beerData.serving_type_id,
+                added_by_user_id: beerData.added_by_user_id,
+            });
+        if (error) throw error;
+        console.log("Added pending beer:", data);
+        return true;
+    } catch (error) {
+        console.error('Error adding pending beer:', error);
+        return false;
+    }
 }
 
 export async function getBarDetails(barId: string): Promise<BarDetails | null> {
@@ -229,6 +216,7 @@ export async function getBarBeers(barId: string) {
                 price,
                 size_oz,
                 canonical_beers!inner (
+                    id,
                   name,
                   abv,
                   breweries (
@@ -261,6 +249,7 @@ export async function getBarBeers(barId: string) {
         const barDetails = data;
         const transformed = {
             barDetails: {
+                barID: barDetails.id,
                 barName: barDetails.name,
                 barStreetAddress: barDetails.street_address,
                 barCity: barDetails.city,
@@ -270,6 +259,7 @@ export async function getBarBeers(barId: string) {
             beersOffered: barDetails.beers.map((beerOffering: any) => ({
                 id: beerOffering.id,
                 name: beerOffering.canonical_beers.name,
+                canon_id: beerOffering.canonical_beers.id,
                 price: beerOffering.price,
                 size_oz: beerOffering.size_oz,
                 abv: beerOffering.canonical_beers.abv,
@@ -328,7 +318,6 @@ export async function searchNearbyBars(
 
         if (error) throw error;
 
-        console.log("$#%$#@%^^%(&*)(+_Hitting up spatial DB for bars(*^&E%$#$*^(&*^!!!!", data);
         // Filter by query if provided (since we can't pass query to the function)
         let filteredData = data;
         console.log("data from nearby_bars rpc:", data);
@@ -358,8 +347,6 @@ export async function searchNearbyBeers(
             });
 
         if (error) throw error;
-
-        console.log("Hitting up spatial DB for beers!!!!", data);
 
         // Filter by query if provided (since we can't pass query to the function)
         let filteredData = data;
@@ -395,6 +382,18 @@ export async function searchNearbyBeers(
     }
 }
 
+export async function getServingTypes() {
+    try {
+        const { data, error } = await supabase
+            .from('serving_types')
+            .select('*');
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error fetching serving types:', error);
+        return [];
+    }
+}
 
 export async function getUserProfile(userId: string) {
     try {

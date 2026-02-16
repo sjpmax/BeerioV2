@@ -3,6 +3,8 @@ import { Text, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocationProvider } from '@/contexts/LocationContext';
+
+import { useAuthContext } from '@/hooks/use-auth-context'
 function BeerIcon({ focused }: { focused: boolean }) {
     return (
         <View className={`w-6 h-6 items-center justify-center ${focused ? 'opacity-100' : 'opacity-50'}`}>
@@ -20,9 +22,11 @@ function BarIcon({ focused }: { focused: boolean }) {
 }
 
 function AccountIcon({ focused }: { focused: boolean }) {
+
+    const { profile, session } = useAuthContext()
     return (
         <View className={`w-6 h-6 items-center justify-center ${focused ? 'opacity-100' : 'opacity-50'}`}>
-            <Text className="text-2xl">👤</Text>
+            {session ? (<Text className="text-2xl">👤</Text>) : (<Text className="text-2xl">🔒</Text>)}
         </View>
     );
 }
