@@ -28,6 +28,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
             } = await supabase.auth.getSession()
             if (error) {
                 console.error('Error fetching session:', error)
+                setSession(null)
             }
 
             setSession(session)

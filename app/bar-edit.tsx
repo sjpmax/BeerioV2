@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function barEdit() {
 
-    const { profile, session } = useAuthContext()
+    const { profile, session } = useAuthContext();
     const insets = useSafeAreaInsets();
     const { barId } = useLocalSearchParams();
     const theme = useTheme();
@@ -96,8 +96,6 @@ export default function barEdit() {
             setIsLoading(true);
             const barData = await getBarBeers(barId as string);
 
-            console.log("profile id: ", profile.id); 
-
             if (barData) {
                 setBarDetails(barData.barDetails);
                 setBeersOffered(barData.beersOffered);
@@ -170,10 +168,49 @@ export default function barEdit() {
     const handleSaveChanges = () => {
         console.log('Add beer:', { newBeerName, newBrewery, newAbv, newPrice, newServingType });
         console.log('Selected beer from suggestions:', selectedBeer);
-        
+
+        if (!newBeerName || !newBrewery || !newAbv || !newPrice || !newServingType) {
+
+            // show snackbar that all fields are required
+            setSnackbarMessage('Please fill in all fields before saving.');
+            setSnackbarVisible(true);
+            
+        } else {
+            // Add new beer to DB and link to bar, with pending status. If selectedBeer is null, it's a completely new beer. If it's not null, it's an existing beer being added to this bar for the first time.
+            if (!selectedBeer) {
+                addPendingBeer({
+                    name: newBeerName,
+                    brewery_name: newBrewery,
+                    abv: newAbv,
+                    beer_type_raw: '', // we don't have this info from the form, so we'll leave it blank for now
+                    bar_id: barId as string,
+                    price: parseFloat(newPrice),
+                    serving_type_id: newServingType.id.toString(),
+                    added_by_user_id: profile.id,
+                }).then((success) => {
+                    if (success) {
+                        setSnackbarMessage('Beer added successfully! It will be reviewed by our team and added to the bar soon.');
+                        setSnackbarVisible(true);
+                        handleCloseModal();
+                    } else {
+                        setSnackbarMessage('There was an error adding the beer. Please try again.');
+                        setSnackbarVisible(true);
+                    }
+                }).catch((error) => {
+                    console.error('Error adding pending beer:', error);
+                });
+            }
+            else {
+                console.log('Adding existing beer to bar:', selectedBeer);
+            }
+        }
 
     }
 
+
+    useEffect(() => {
+        console.log("Bar details loaded:", isLoading);
+    }, [isLoading]);
 
     const handleDialogDismiss = () => {
         setInfoDialogVisible(false);
@@ -192,6 +229,8 @@ export default function barEdit() {
         setNewServingType('');
     };
 
+    if (isLoading ) return <ActivityIndicator />;
+
     return (
         <>
             <Stack.Screen
@@ -199,6 +238,7 @@ export default function barEdit() {
                     title: barDetails?.barName || 'Edit Bar'
                 }}
             />
+          
             <View
                 className="flex-1 p-4"
                 style={{ backgroundColor: theme.colors.background, paddingBottom: insets.bottom }}
@@ -220,16 +260,7 @@ export default function barEdit() {
                         </Dialog>
                     </Portal>
 
-                    <Portal>
-                        <Snackbar
-                            wrapperStyle={{ top: 60 }}
-                            visible={snackbarVisible}
-                            onDismiss={() => setSnackbarVisible(false)}
-                            duration={3000}
-                        >
-                            {snackbarMessage}
-                        </Snackbar>
-                    </Portal>
+                    
 
 
                     {/*********************************************************/}
@@ -481,7 +512,16 @@ export default function barEdit() {
                     </Portal>
 
                 </ScrollView>
-
+                <Portal>
+                    <Snackbar
+                        wrapperStyle={{ top: 60 }}
+                        visible={snackbarVisible}
+                        onDismiss={() => setSnackbarVisible(false)}
+                        duration={3000}
+                    >
+                        {snackbarMessage}
+                    </Snackbar>
+                </Portal>
             </View >
         </>
     );
