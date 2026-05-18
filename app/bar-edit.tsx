@@ -333,7 +333,7 @@ export default function barEdit() {
                                                 <Card.Content>
                                                     <View style={{ flexDirection: 'row' }}>
                                                         <View style={{ flex: 9, alignItems: 'flex-start' }}>
-                                                            <Text variant="titleMedium">{item.name} - <Icon source={item.serving_icon} color="green" size={16} /> {item.serving_type}</Text>
+                                                            <Text variant="titleMedium">{item.name} - <Icon source={item.serving_icon} color={theme.colors.primary} size={16} /> {item.serving_type}</Text>
                                                         </View>
                                                         <View style={{ flex: 2, flexDirection: 'row', alignItems: 'flex-end center' }}>
                                                             <IconButton icon="pencil" size={20} onPress={() => console.log('Edit beer ' + item.name)} style={{ margin: 0, marginTop: -4 }} />
@@ -468,7 +468,7 @@ export default function barEdit() {
 
                                         <TouchableOpacity onPress={() => setBannerVisible(false)}>
                                             <Banner visible={bannerVisible}
-                                                style={{ backgroundColor: "#1B4D3E", marginLeft: 20 }}
+                                                style={{ backgroundColor: theme.colors.popLight, marginLeft: 20 }}
                                                 actions={[
                                                     {
                                                         label: 'Awesome!',
@@ -476,7 +476,7 @@ export default function barEdit() {
                                                     },
                                                 ]}
                                             >
-                                                <Text style={{ color: '#A8D5A2' }}>It will take a few days for new beers to be approved by our team, but once approved, it will be added to the beer list for this bar and available for other bars to add as well. You will get extra points for adding a new beer!</Text>
+                                                <Text style={{ color: theme.colors.onSurface }}>It will take a few days for new beers to be approved by our team, but once approved, it will be added to the beer list for this bar and available for other bars to add as well. You will get extra points for adding a new beer!</Text>
                                             </Banner>
                                         </TouchableOpacity>
                                         <TextInput label="Name" value={newBeerName} onChangeText={setNewBeerName} disabled={!hasSearched || selectedBeer !== null} />
