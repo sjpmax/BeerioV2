@@ -38,6 +38,9 @@ yarn-error.*
 
 app-example
 
+# Superpowers brainstorming mockups
+.superpowers/
+
 # generated native folders
 /ios
 /android
