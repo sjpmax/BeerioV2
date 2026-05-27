@@ -224,7 +224,7 @@ export default function BeersScreen() {
                 <Text style={{ textAlign: 'center', marginTop: 20, color: theme.colors.onBackground }}>Looking for the best bang for your buck near you...</Text>
             </View>}
             {/*    After the data comes back: */}
-            {!isLoading && (<View>
+            {!isLoading && (<View style={{ flex: 1 }}>
                 <Button style={{ marginTop: 30 }} onPress={showFilters ? () => setShowFilters(false) : () => setShowFilters(true)} mode="outlined">
                     Filters
                 </Button>
