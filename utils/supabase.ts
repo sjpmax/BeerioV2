@@ -323,7 +323,8 @@ export async function searchNearbyBars(
         console.log("data from nearby_bars rpc:", data);
         return data;
     } catch (error) {
-        console.error('Spatial search error:', JSON.stringify(error))
+        console.error('Spatial search error:', error);
+        return [];
     }
 
 }

@@ -3,7 +3,7 @@ import { GroupedBeer } from '@/utils/supabase';
 import { Theme } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 
@@ -23,52 +23,13 @@ export default function BeerMapView({
     getDistanceMessage
 }: BeerSuggestionProps) {
 
-    const beerCount = Object.values(groupedBeers).length;
-    const lat = location?.coords.latitude;
-    const lng = location?.coords.longitude;
-
-    let validMarkers = 0;
-    let skippedNoLoc = 0;
-    Object.values(groupedBeers).forEach((bg) => {
-        const m = bg.locations?.[0];
-        if (m && m.bar_lat != null && m.bar_long != null) validMarkers++;
-        else skippedNoLoc++;
-    });
-
-    console.log('[BeerMapView] render', {
-        locationStatus,
-        lat,
-        lng,
-        beerCount,
-        validMarkers,
-        skippedNoLoc,
-        firstBeer: Object.values(groupedBeers)[0],
-    });
-
     return (
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-            <View style={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                right: 8,
-                zIndex: 10,
-                backgroundColor: 'rgba(0,0,0,0.7)',
-                padding: 8,
-                borderRadius: 4,
-            }}>
-                <Text style={{ color: '#fff', fontSize: 11, fontFamily: 'monospace' }}>
-                    locStatus: {String(locationStatus)} | lat: {lat?.toFixed(4) ?? 'null'} | lng: {lng?.toFixed(4) ?? 'null'}
-                </Text>
-                <Text style={{ color: '#fff', fontSize: 11, fontFamily: 'monospace' }}>
-                    beers: {beerCount} | markers: {validMarkers} | skipped(no loc): {skippedNoLoc}
-                </Text>
-            </View>
             <MapView
                 style={{ flex: 1 }}
                 initialRegion={{
-                    latitude: lat || 0,
-                    longitude: lng || 0,
+                    latitude: location?.coords.latitude || 0,
+                    longitude: location?.coords.longitude || 0,
                     latitudeDelta: 0.0922,
                     longitudeDelta: 0.0421,
                 }}
@@ -76,7 +37,7 @@ export default function BeerMapView({
                 {Object.values(groupedBeers).map((beerGroup, index) => {
                     const markerBar = beerGroup.locations[0];
                     if (!markerBar || markerBar.bar_lat == null || markerBar.bar_long == null) {
-                        console.warn('[BeerMapView] skipping (no loc):', beerGroup.name, beerGroup);
+                        console.warn('Skipping beerGroup due to missing location:', beerGroup);
                         return null;
                     }
                     return (
@@ -91,7 +52,7 @@ export default function BeerMapView({
                         />
                     );
                 })}
-
+                
             </MapView>
 
         </View>
