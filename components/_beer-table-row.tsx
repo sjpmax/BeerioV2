@@ -81,8 +81,8 @@ export default function BeerTableRow({
         }}>
           {/* Rest of your expanded content stays the same */}
                   <View style={{ flexDirection: 'row', paddingTop: 4 }}>
-                      <Text style={{ flex: 2, fontWeight: 'bold', color: 'rgb(54, 199, 124)', paddingLeft:10 }}>{groupedBeers.type}</Text>
-            <Text style={{ flex: 1, fontWeight: 'bold', color: 'rgb(54, 199, 124)' }}>{groupedBeers.abv}%</Text>
+                      <Text style={{ flex: 2, fontWeight: 'bold', color: phillyColors.lightGold, paddingLeft:10 }}>{groupedBeers.type}</Text>
+            <Text style={{ flex: 1, fontWeight: 'bold', color: phillyColors.lightGold }}>{groupedBeers.abv}%</Text>
             <View style={{ flex: 6 }}></View>
           </View>
 
@@ -98,7 +98,7 @@ export default function BeerTableRow({
                       <View style={{ flex: 9, paddingLeft: 15, backgroundColor: 'rgba(255,255,255,0.05)', paddingLeft: 10 }}>
               {groupedBeers.locations.map((location: any, idx: number) => (
                 <View key={idx} style={{ flexDirection: 'row', paddingVertical: 5 }}>
-                  <Text style={{ flex: 3, color: '#AAA' }} onPress={() => openInMaps(
+                  <Text style={{ flex: 3, color: phillyColors.mutedGold }} onPress={() => openInMaps(
                     location.bar_lat,
                     location.bar_long,
                     groupedBeers.name
@@ -109,9 +109,9 @@ export default function BeerTableRow({
                     {/* Use the getDistanceMessage function */}
                     {` ${getDistanceMessage(location.bar_lat, location.bar_long)}`}
                   </Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>${location.price}</Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>{location.size}oz</Text>
-                  <Text style={{ flex: 1, color: '#AAA' }}>
+                  <Text style={{ flex: 1, color: phillyColors.mutedGold }}>${location.price}</Text>
+                  <Text style={{ flex: 1, color: phillyColors.mutedGold }}>{location.size}oz</Text>
+                  <Text style={{ flex: 1, color: phillyColors.mutedGold }}>
                     ${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/oz
                   </Text>
                 </View>

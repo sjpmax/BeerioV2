@@ -159,12 +159,12 @@ export default function BeersScreen() {
                     onPress={refreshLocation}
                     style={{
                         padding: 10,
-                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        backgroundColor: 'rgba(187, 0, 37, 0.15)',
                         borderRadius: 4,
                         margin: 10
                     }}
                 >
-                    <Text style={{ color: '#e74c3c', textAlign: 'center' }}>
+                    <Text style={{ color: theme.colors.crimson, textAlign: 'center' }}>
                         {status === 'permission-denied'
                             ? 'Location permission needed for distances. Tap to request.'
                             : status === 'unavailable'

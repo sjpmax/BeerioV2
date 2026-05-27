@@ -20,10 +20,10 @@ export default function AccountScreen() {
     };
     console.log('Auth context:', { profile, session});
     return (
-        <View className="flex-1 items-center justify-center bg-gray-900" styles={{ flexDirection: 'column' }}>
+        <View className="flex-1 items-center justify-center" style={{ backgroundColor: theme.colors.background, flexDirection: 'column' }}>
             <View style={{ flex: 3, justifyContent: 'center', alignItems: 'center' }}></View>
-            <Text className="text-white text-2xl" style={{ flex: 1 }} >Account Screen</Text>
-            <Text className="text-white text-lg mt-4" style={{ flex: 1 }}>
+            <Text className="text-2xl" style={{ flex: 1, color: theme.colors.onSurface }} >Account Screen</Text>
+            <Text className="text-lg mt-4" style={{ flex: 1, color: theme.colors.onSurface }}>
                 Welcome, {profile?.full_name || profile?.email || 'Beerio friend'}!
             </Text>
             {session ?

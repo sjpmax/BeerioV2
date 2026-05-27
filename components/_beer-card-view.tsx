@@ -153,21 +153,21 @@ export default function BeerCardView({
                                 </View>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={{ color: "#AAA", paddingLeft: 2 }}>Available at these Location(s):</Text>
+                                <Text style={{ color: phillyColors.mutedGold, paddingLeft: 2 }}>Available at these Location(s):</Text>
 
                                 {item.locations.map((location, index) => (
                                     <View key={index} style={{ flexDirection: 'row' }}>
                                         <View style={{ flex: 3 }}>
-                                            <Text style={{ color: "#AAA", paddingLeft: 2 }}>
+                                            <Text style={{ color: phillyColors.mutedGold, paddingLeft: 2 }}>
                                                 <Text
-                                                    style={{ color: "#AAA", fontWeight: 'bold' }}
+                                                    style={{ color: phillyColors.mutedGold, fontWeight: 'bold' }}
                                                     onPress={() => openInMaps(
                                                         location.bar_lat,
                                                         location.bar_long,
                                                         item.name
                                                     )}
                                                 >
-                                                    <Icon source="map-marker" size={16} color={"#AAA"} />
+                                                    <Icon source="map-marker" size={16} color={phillyColors.mutedGold} />
                                                     {truncateText(location.bar_name, 6) || 'N/A'}
                                                     {location
                                                         ? `, (${distances[`${location.bar_lat}-${location.bar_long}`] ?? 'N/A'} mi)`
@@ -177,7 +177,7 @@ export default function BeerCardView({
                                             </Text>
                                         </View>
                                         <View style={{ alignItems: 'flex-end', alignSelf: 'flex-end' }}>
-                                            <Text style={{ color: index === 0 ? "#FFF" : "#AAA", paddingLeft: 2 }}>
+                                            <Text style={{ color: index === 0 ? phillyColors.lightGold : phillyColors.mutedGold, paddingLeft: 2 }}>
                                                 {index === 0
                                                     ? `($${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/Oz)`
                                                     : `(${parseFloat(location.cost_per_alcohol_oz).toFixed(2)}/Oz)`}
