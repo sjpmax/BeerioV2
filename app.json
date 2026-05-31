@@ -21,7 +21,7 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": "process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
+          "apiKey": "AIzaSyBCAiBanRt4e3p2GetAaHEcHr-8FMI-oFM"
         }
       },
       "package": "com.beerio.app",
